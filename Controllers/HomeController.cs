@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using SharingPictureWebsite.Models;
 
@@ -15,7 +15,8 @@ namespace SharingPictureWebsite.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            // Đưa người dùng về trang đăng nhập mặc định
+            return RedirectToAction("Index", "Gallery");
         }
 
         public IActionResult Privacy()

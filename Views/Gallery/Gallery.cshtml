@@ -1,0 +1,60 @@
+﻿@{
+	ViewData["Title"] = "Gallery";
+}
+   <!-- Main Content -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+	<!-- Header -->
+	<div class="mb-8">
+		<h1 class="text-3xl font-bold mb-4 text-gray-900">Public Gallery</h1>
+		<div class="relative max-w-md">
+			<svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+			</svg>
+			<input type="text"
+				   id="searchInput"
+				   placeholder="Search images by title or category..."
+				   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+		</div>
+	</div>
+
+	<!-- Image Grid -->
+	<div id="imageGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+		<!-- Images will be loaded here by JavaScript -->
+	</div>
+
+	<!-- No Results Message -->
+	<div id="noResults" class="hidden text-center py-12 text-gray-500">
+		No images found matching your search.
+	</div>
+</main>
+
+<script>	// Search functionality
+			const searchInput = document.getElementById('searchInput');
+			const imageGrid = document.getElementById('imageGrid');
+			const noResults = document.getElementById('noResults');
+
+			if (searchInput) {
+				searchInput.addEventListener('input', function() {
+					const searchTerm = this.value.toLowerCase();
+					const imageCards = imageGrid.querySelectorAll('a');
+					let visibleCount = 0;
+
+					imageCards.forEach(card => {
+						const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
+						const category = card.querySelector('.inline-block')?.textContent.toLowerCase() || '';
+
+						if (title.includes(searchTerm) || category.includes(searchTerm)) {
+							card.style.display = '';
+							visibleCount++;
+						} else {
+							card.style.display = 'none';
+						}
+					});
+
+					if (visibleCount === 0) {
+						noResults.classList.remove('hidden');
+					} else {
+						noResults.classList.add('hidden');
+					}
+				});
+			}</script>
