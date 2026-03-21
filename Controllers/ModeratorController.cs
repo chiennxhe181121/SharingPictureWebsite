@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using SharingPictureWebsite.Models;
 using SharingPictureWebsite.Services.Interfaces;
 
 namespace SharingPictureWebsite.Controllers
@@ -16,14 +15,17 @@ namespace SharingPictureWebsite.Controllers
 
         [HttpGet("")]
         [HttpGet("index")]
-        public IActionResult Moderator()
+        public IActionResult Moderator(string? status = "all", int page = 1)
         {
-            var pictures = _pictureService
-                .GetAllPictures()
-                .OrderByDescending(p => p.UploadDate)
-                .ToList();
+            var pagedPictures = _pictureService.GetModeratorPicturesPaged(status, page);
+            var stats = _pictureService.GetModeratorStatusStats();
 
-            return View(pictures);
+            ViewBag.CurrentFilter = status ?? "all";
+            ViewBag.PendingCount = stats.PendingCount;
+            ViewBag.ApprovedCount = stats.ApprovedCount;
+            ViewBag.RejectedCount = stats.RejectedCount;
+
+            return View(pagedPictures);
         }
 
         [HttpPost("approve/{id:int}")]
@@ -35,7 +37,7 @@ namespace SharingPictureWebsite.Controllers
                 _pictureService.ApprovePicture(id);
                 TempData["Success"] = "Duyet anh thanh cong!";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["Error"] = "Khong tim thay anh de duyet.";
             }
@@ -52,7 +54,7 @@ namespace SharingPictureWebsite.Controllers
                 _pictureService.RejectPicture(id);
                 TempData["Success"] = "Tu choi anh thanh cong!";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["Error"] = "Khong tim thay anh de tu choi.";
             }

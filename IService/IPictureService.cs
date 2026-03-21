@@ -26,6 +26,14 @@ namespace SharingPictureWebsite.Services.Interfaces
 
         IEnumerable<Picture> GetAllPictures();
 
+        IEnumerable<Picture> GetModeratorPictures();
+
+        IEnumerable<Picture> GetModeratorPicturesByStatus(string? status);
+
+        PaginationViewModel<Picture> GetModeratorPicturesPaged(string? status, int page = 1, int pageSize = 5);
+
+        ModeratorStatusStatsViewModel GetModeratorStatusStats();
+
         void ApprovePicture(int pictureId);
 
         void RejectPicture(int pictureId);

@@ -115,6 +115,67 @@ namespace SharingPictureWebsite.Services
             return _repo.GetAll();
         }
 
+        public IEnumerable<Picture> GetModeratorPictures()
+        {
+            return _repo
+                .GetAll()
+                .OrderByDescending(p => p.UploadDate)
+                .ToList();
+        }
+
+        public IEnumerable<Picture> GetModeratorPicturesByStatus(string? status)
+        {
+            var pictures = _repo.GetAll().OrderByDescending(p => p.UploadDate);
+
+            if (string.IsNullOrEmpty(status) || status.ToLower() == "all")
+            {
+                return pictures.ToList();
+            }
+
+            return status.ToLower() switch
+            {
+                "pending" => pictures.Where(p => p.Status == Status.Pending).ToList(),
+                "approved" => pictures.Where(p => p.Status == Status.Public).ToList(),
+                "rejected" => pictures.Where(p => p.Status == Status.Rejected || p.Status == Status.Banned).ToList(),
+                _ => pictures.ToList()
+            };
+        }
+
+        public ModeratorStatusStatsViewModel GetModeratorStatusStats()
+        {
+            var pictures = _repo.GetAll().ToList();
+
+            return new ModeratorStatusStatsViewModel
+            {
+                PendingCount = pictures.Count(p => p.Status == Status.Pending),
+                ApprovedCount = pictures.Count(p => p.Status == Status.Public),
+                RejectedCount = pictures.Count(p => p.Status == Status.Rejected || p.Status == Status.Banned)
+            };
+        }
+
+        public PaginationViewModel<Picture> GetModeratorPicturesPaged(string? status, int page = 1, int pageSize = 5)
+        {
+            var allPictures = GetModeratorPicturesByStatus(status).ToList();
+            var totalItems = allPictures.Count;
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            // Validate page number
+            if (page < 1) page = 1;
+            if (page > totalPages && totalPages > 0) page = totalPages;
+
+            var itemsToSkip = (page - 1) * pageSize;
+            var itemsOnPage = allPictures.Skip(itemsToSkip).Take(pageSize).ToList();
+
+            return new PaginationViewModel<Picture>
+            {
+                Items = itemsOnPage,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalItems = totalItems,
+                PageSize = pageSize
+            };
+        }
+
         public void ApprovePicture(int pictureId)
         {
             var picture = _repo.GetById(pictureId);

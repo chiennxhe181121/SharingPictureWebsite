@@ -15,25 +15,17 @@ namespace SharingPictureWebsite.Controllers
 
         [HttpGet("")]
         [HttpGet("index")]
-        public IActionResult Admin()
+        public IActionResult Admin(int page = 1)
         {
-            var members = _memberService.GetAllMembers();
-            var stats = _memberService.GetDashboardStats();
+            const int pageSize = 10;
+            var model = _memberService.GetAdminDashboard(page, pageSize);
 
-            ViewBag.TotalUsers = stats.TotalUsers;
-            ViewBag.TotalImages = stats.TotalImages;
-            ViewBag.ActiveUsers = stats.ActiveUsers;
-            ViewBag.BannedUsers = stats.BannedUsers;
-            ViewBag.ApprovedImages = stats.ApprovedImages;
-            ViewBag.ActivePercent = stats.ActivePercent;
-            ViewBag.BannedPercent = stats.BannedPercent;
-
-            return View(members);
+            return View(model);
         }
 
         [HttpPost("ban/{id:int}")]
         [ValidateAntiForgeryToken]
-        public IActionResult Ban(int id)
+        public IActionResult Ban(int id, int page = 1)
         {
             try
             {
@@ -45,12 +37,12 @@ namespace SharingPictureWebsite.Controllers
                 TempData["Error"] = "Khong tim thay nguoi dung.";
             }
 
-            return RedirectToAction("Admin");
+            return RedirectToAction("Admin", new { page });
         }
 
         [HttpPost("unban/{id:int}")]
         [ValidateAntiForgeryToken]
-        public IActionResult Unban(int id)
+        public IActionResult Unban(int id, int page = 1)
         {
             try
             {
@@ -62,7 +54,7 @@ namespace SharingPictureWebsite.Controllers
                 TempData["Error"] = "Khong tim thay nguoi dung.";
             }
 
-            return RedirectToAction("Admin");
+            return RedirectToAction("Admin", new { page });
         }
     }
 }
