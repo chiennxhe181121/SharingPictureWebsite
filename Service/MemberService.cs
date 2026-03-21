@@ -21,6 +21,32 @@ namespace SharingPictureWebsite.Services
             return _memberRepository.GetAll();
         }
 
+        public AdminDashboardViewModel GetAdminDashboard(int page, int pageSize)
+        {
+            var members = _memberRepository.GetAll().ToList();
+            var totalItems = members.Count;
+            var totalPages = Math.Max(1, (int)Math.Ceiling(totalItems / (double)pageSize));
+            page = Math.Max(1, Math.Min(page, totalPages));
+
+            var pagedMembers = members
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return new AdminDashboardViewModel
+            {
+                Stats = GetDashboardStats(),
+                Members = new PaginationViewModel<Member>
+                {
+                    Items = pagedMembers,
+                    CurrentPage = page,
+                    TotalPages = totalPages,
+                    TotalItems = totalItems,
+                    PageSize = pageSize
+                }
+            };
+        }
+
         public DashboardStatsViewModel GetDashboardStats()
         {
             var members = _memberRepository.GetAll().ToList();
