@@ -12,6 +12,7 @@ namespace SharingPictureWebsite.Services.Interfaces
             string? sortBy,
             int page,
             int pageSize);
+        ImageDetailViewModel? GetPictureDetail(int pictureId, int currentMemberId);
 
         Task UploadImageAsync(
             IFormFile file,

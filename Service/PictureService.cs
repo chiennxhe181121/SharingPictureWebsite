@@ -1,4 +1,5 @@
-﻿using SharingPictureWebsite.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SharingPictureWebsite.Models;
 using SharingPictureWebsite.Repositories.Interfaces;
 using SharingPictureWebsite.Services.Interfaces;
 using SharingPictureWebsite.ViewModels;
@@ -46,6 +47,11 @@ namespace SharingPictureWebsite.Services
                 SortBy = sortBy,
                 Categories = _categoryRepo.GetAll()
             };
+        }
+
+        public ImageDetailViewModel? GetPictureDetail(int pictureId, int currentMemberId)
+        {
+            return _repo.GetPictureDetail(pictureId, currentMemberId);
         }
 
         public UploadViewModel GetUploadData()

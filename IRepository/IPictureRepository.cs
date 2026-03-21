@@ -13,6 +13,7 @@ namespace SharingPictureWebsite.Repositories.Interfaces
     int pageSize);
 
         IEnumerable<Picture> GetAll();
+        ImageDetailViewModel? GetPictureDetail(int pictureId, int currentMemberId);
         Picture? GetById(int id);
 
         void Add(Picture picture);

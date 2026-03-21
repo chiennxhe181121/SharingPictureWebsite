@@ -76,6 +76,32 @@ namespace SharingPictureWebsite.Repositories
                 .ToList();
         }
 
+        public ImageDetailViewModel? GetPictureDetail(int pictureId, int currentMemberId)
+        {
+            return _context.Pictures
+                .Where(p => p.PictureID == pictureId)
+                .Select(p => new ImageDetailViewModel
+                {
+                    PictureID = p.PictureID,
+                    Title = p.Title,
+                    ImageURL = p.ImageURL,
+                    Description = p.Description,
+                    CategoryName = p.Category != null ? p.Category.CategoryName : "No Category",
+                    AuthorName = p.Author.FullName,
+                    CreatedAt = p.UploadDate,
+                    LikeCount = p.Likes.Count,
+                    IsLiked = p.Likes.Any(l => l.MemberID == currentMemberId), // check tạm member id 2
+                    Comments = p.Comments
+                                .OrderByDescending(c => c.CreatedAt)
+                                .Select(c => new CommentViewModel
+                                {
+                                    UserName = c.Member.FullName,
+                                    Content = c.Content,
+                                    CreatedAt = c.CreatedAt
+                                }).ToList()
+                }).FirstOrDefault();
+        }
+
         public Picture? GetById(int id)
         {
             return _context.Pictures

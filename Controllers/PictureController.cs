@@ -47,12 +47,12 @@ namespace SharingPictureWebsite.Controllers
                     return RedirectToAction("Upload");
                 }
 
-                int memberId = 1;
+                int memberId = 2;
 
                 await _service.UploadImageAsync(file, title, description, categoryId, memberId, albumId);
 
                 TempData["Success"] = "Upload successful! Waiting for moderation.";
-                return RedirectToAction("Index", "Gallery");
+                return RedirectToAction("Upload");
             }
             catch
             {

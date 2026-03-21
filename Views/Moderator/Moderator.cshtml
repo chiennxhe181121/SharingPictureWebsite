@@ -2,285 +2,217 @@
 @using SharingPictureWebsite.ViewModels
 @model PaginationViewModel<Picture>
 @{
-    var pendingCount = (int)(ViewBag.PendingCount ?? 0);
-    var approvedCount = (int)(ViewBag.ApprovedCount ?? 0);
-    var rejectedCount = (int)(ViewBag.RejectedCount ?? 0);
+	var pendingCount = (int)(ViewBag.PendingCount ?? 0);
+	var approvedCount = (int)(ViewBag.ApprovedCount ?? 0);
+	var rejectedCount = (int)(ViewBag.RejectedCount ?? 0);
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SharingPicture - Moderator Review</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        :root {
-            --brand-ink: #0f172a;
-            --brand-soft: #334155;
-            --brand-primary: #0369a1;
-            --brand-primary-soft: #e0f2fe;
-            --brand-card: rgba(255, 255, 255, 0.88);
-            --brand-border: rgba(148, 163, 184, 0.25);
-        }
+<!-- Main Content -->
+<!-- Header -->
+<div class="glass-card rounded-2xl p-6 md:p-8 mb-6 fade-in">
+	<div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+		<div>
+			<p class="text-sm font-semibold tracking-wide text-sky-700 uppercase">Moderation Center</p>
+			<h1 class="text-3xl md:text-4xl font-bold mt-1 text-slate-900">Review Submitted Pictures</h1>
+			<p class="text-slate-600 mt-2">Approve quality content and reject images that violate community rules.</p>
+		</div>
+		<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 w-full lg:w-auto lg:min-w-[520px]">
+			<div class="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 min-h-[88px] flex flex-col justify-center">
+				<p class="text-xs font-semibold uppercase tracking-wide text-amber-700">Pending</p>
+				<p class="text-2xl font-bold text-amber-900 mt-1">@pendingCount</p>
+			</div>
+			<div class="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 min-h-[88px] flex flex-col justify-center">
+				<p class="text-xs font-semibold uppercase tracking-wide text-emerald-700">Approved</p>
+				<p class="text-2xl font-bold text-emerald-900 mt-1">@approvedCount</p>
+			</div>
+			<div class="rounded-xl bg-rose-50 border border-rose-200 px-4 py-3 min-h-[88px] flex flex-col justify-center">
+				<p class="text-xs font-semibold uppercase tracking-wide text-rose-700">Rejected</p>
+				<p class="text-2xl font-bold text-rose-900 mt-1">@rejectedCount</p>
+			</div>
+		</div>
+	</div>
+</div>
 
-        body {
-            font-family: 'Sora', sans-serif;
-            color: var(--brand-ink);
-            background:
-                radial-gradient(circle at 0% 0%, #dbeafe 0%, rgba(219, 234, 254, 0) 45%),
-                radial-gradient(circle at 100% 0%, #cffafe 0%, rgba(207, 250, 254, 0) 40%),
-                #f8fafc;
-        }
+<!-- Filter -->
+<div class="glass-card rounded-2xl p-4 mb-6 fade-in">
+	<div class="flex items-center gap-4 flex-wrap justify-between">
+		<div class="flex items-center gap-2">
+			<svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+			</svg>
+			<span class="font-semibold text-slate-900">Filter by status</span>
+		</div>
+		<div class="flex gap-2 flex-wrap">
+			<a href="/moderator?status=all&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(ViewBag.CurrentFilter == "all" ? "bg-sky-700 text-white border-sky-700" : "bg-white text-slate-700 border-slate-200 hover:border-sky-300 hover:text-sky-700")'>
+				All
+			</a>
+			<a href="/moderator?status=pending&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(ViewBag.CurrentFilter == "pending" ? "bg-amber-600 text-white border-amber-600" : "bg-white text-slate-700 border-slate-200 hover:border-amber-300 hover:text-amber-700")'>
+				Pending
+			</a>
+			<a href="/moderator?status=approved&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(ViewBag.CurrentFilter == "approved" ? "bg-emerald-600 text-white border-emerald-600" : "bg-white text-slate-700 border-slate-200 hover:border-emerald-300 hover:text-emerald-700")'>
+				Approved
+			</a>
+			<a href="/moderator?status=rejected&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(ViewBag.CurrentFilter == "rejected" ? "bg-rose-600 text-white border-rose-600" : "bg-white text-slate-700 border-slate-200 hover:border-rose-300 hover:text-rose-700")'>
+				Rejected
+			</a>
+		</div>
+	</div>
+</div>
 
-        .glass-card {
-            background: var(--brand-card);
-            border: 1px solid var(--brand-border);
-            box-shadow: 0 20px 40px -30px rgba(15, 23, 42, 0.45);
-            backdrop-filter: blur(6px);
-        }
+<!-- Images Table -->
+<div class="glass-card rounded-2xl overflow-hidden fade-in">
+	<div class="overflow-x-auto">
+		<table class="w-full">
+			<thead class="bg-slate-100/90 border-b border-slate-200">
+				<tr>
+					<th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Image</th>
+					<th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Title</th>
+					<th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Uploader</th>
+					<th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Upload Date</th>
+					<th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Status</th>
+					<th class="action-col px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
+				</tr>
+			</thead>
+			<tbody id="imagesTable" class="divide-y divide-slate-200">
+				@foreach (Picture picture in Model.Items)
+				{
+					string? normalizedStatus = picture.Status switch
+					{
+						Status.Pending => "pending",
+						Status.Rejected => "rejected",
+						Status.Banned => "rejected",
+						_ => "approved"
+					};
 
-        .filter-pill {
-            transition: all 180ms ease;
-        }
+					string? statusBadgeClass = normalizedStatus switch
+					{
+						"pending" => "bg-yellow-100 text-yellow-800",
+						"rejected" => "bg-red-100 text-red-800",
+						_ => "bg-green-100 text-green-800"
+					};
 
-        .filter-pill:hover {
-            transform: translateY(-1px);
-        }
+					string? statusLabel = normalizedStatus switch
+					{
+						"pending" => "Pending",
+						"rejected" => "Rejected",
+						_ => "Approved"
+					};
 
-        .fade-in {
-            animation: fadeUp 450ms ease both;
-        }
+					<tr data-status="@normalizedStatus" class="hover:bg-sky-50/40 transition-colors">
+						<td class="px-6 py-4">
+							<img src="@picture.ImageURL" onerror="this.onerror=null;this.src='/images/default-image.jpg';" alt="@picture.Title" class="w-24 h-16 object-cover rounded-lg ring-1 ring-slate-200 cursor-pointer hover:scale-105 transition-transform" onclick="showImageModal('@picture.ImageURL')" />
+						</td>
+						<td class="px-6 py-4 text-sm font-semibold text-slate-900">@picture.Title</td>
+						<td class="px-6 py-4 text-sm text-slate-600">@(picture.Author?.MemberName ?? "Unknown")</td>
+						<td class="px-6 py-4 text-sm text-slate-600">@picture.UploadDate.ToString("yyyy-MM-dd HH:mm")</td>
+						<td class="px-6 py-4">
+							<span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full @statusBadgeClass">@statusLabel</span>
+						</td>
+						<td class="action-col px-6 py-4" style='@(normalizedStatus == "pending" ? "" : "display: none;")'>
+							<div class="flex gap-2">
+								<form asp-action="Approve" asp-controller="Moderator" asp-route-id="@picture.PictureID" method="post" class="inline">
+									<button type="submit" class="p-2 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors ring-1 ring-emerald-200" title="Approve" aria-label="Approve">
+										<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+										</svg>
+									</button>
+								</form>
+								<form asp-action="Reject" asp-controller="Moderator" asp-route-id="@picture.PictureID" method="post" class="inline">
+									<button type="submit" class="p-2 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200 transition-colors ring-1 ring-rose-200" title="Reject" aria-label="Reject">
+										<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+										</svg>
+									</button>
+								</form>
+							</div>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+	<div id="noResults" class="hidden text-center py-12 text-slate-500">
+		No images found
+	</div>
+</div>
 
-        @@keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
+<!-- Pagination -->
+@if (Model.TotalPages > 1)
+{
+	<div class="mt-6 flex justify-center items-center gap-2 flex-wrap">
+		@if (Model.HasPreviousPage)
+		{
+			<a href="/moderator?status=@ViewBag.CurrentFilter&page=1" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">First</a>
+			<a href="/moderator?status=@ViewBag.CurrentFilter&page=@(Model.CurrentPage - 1)" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">Previous</a>
+		}
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
-</head>
-<body class="min-h-screen">
+		@for (int i = 1; i <= Model.TotalPages; i++)
+		{
+			@if (i == Model.CurrentPage)
+			{
+				<span class="px-3 py-2 rounded-lg bg-sky-700 text-white font-semibold">@i</span>
+			}
+			else if (i >= Model.CurrentPage - 2 && i <= Model.CurrentPage + 2)
+			{
+				<a href="/moderator?status=@ViewBag.CurrentFilter&page=@i" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">@i</a>
+			}
+			else if (i == Model.CurrentPage - 3 || i == Model.CurrentPage + 3)
+			{
+				<span class="px-2 py-2">...</span>
+			}
+		}
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Header -->
-        <div class="glass-card rounded-2xl p-6 md:p-8 mb-6 fade-in">
-            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                    <p class="text-sm font-semibold tracking-wide text-sky-700 uppercase">Moderation Center</p>
-                    <h1 class="text-3xl md:text-4xl font-bold mt-1 text-slate-900">Review Submitted Pictures</h1>
-                    <p class="text-slate-600 mt-2">Approve quality content and reject images that violate community rules.</p>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 w-full lg:w-auto lg:min-w-[520px]">
-                    <div class="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 min-h-[88px] flex flex-col justify-center">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-amber-700">Pending</p>
-                        <p class="text-2xl font-bold text-amber-900 mt-1">@pendingCount</p>
-                    </div>
-                    <div class="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 min-h-[88px] flex flex-col justify-center">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700">Approved</p>
-                        <p class="text-2xl font-bold text-emerald-900 mt-1">@approvedCount</p>
-                    </div>
-                    <div class="rounded-xl bg-rose-50 border border-rose-200 px-4 py-3 min-h-[88px] flex flex-col justify-center">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-rose-700">Rejected</p>
-                        <p class="text-2xl font-bold text-rose-900 mt-1">@rejectedCount</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+		@if (Model.HasNextPage)
+		{
+			<a href="/moderator?status=@ViewBag.CurrentFilter&page=@(Model.CurrentPage + 1)" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">Next</a>
+			<a href="/moderator?status=@ViewBag.CurrentFilter&page=@Model.TotalPages" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">Last</a>
+		}
+	</div>
+}
 
-        <!-- Filter -->
-        <div class="glass-card rounded-2xl p-4 mb-6 fade-in">
-            <div class="flex items-center gap-4 flex-wrap justify-between">
-                <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
-                    </svg>
-                    <span class="font-semibold text-slate-900">Filter by status</span>
-                </div>
-                <div class="flex gap-2 flex-wrap">
-                    <a href="/moderator?status=all&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(ViewBag.CurrentFilter == "all" ? "bg-sky-700 text-white border-sky-700" : "bg-white text-slate-700 border-slate-200 hover:border-sky-300 hover:text-sky-700")'>
-                        All
-                    </a>
-                    <a href="/moderator?status=pending&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(ViewBag.CurrentFilter == "pending" ? "bg-amber-600 text-white border-amber-600" : "bg-white text-slate-700 border-slate-200 hover:border-amber-300 hover:text-amber-700")'>
-                        Pending
-                    </a>
-                    <a href="/moderator?status=approved&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(ViewBag.CurrentFilter == "approved" ? "bg-emerald-600 text-white border-emerald-600" : "bg-white text-slate-700 border-slate-200 hover:border-emerald-300 hover:text-emerald-700")'>
-                        Approved
-                    </a>
-                    <a href="/moderator?status=rejected&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(ViewBag.CurrentFilter == "rejected" ? "bg-rose-600 text-white border-rose-600" : "bg-white text-slate-700 border-slate-200 hover:border-rose-300 hover:text-rose-700")'>
-                        Rejected
-                    </a>
-                </div>
-            </div>
-        </div>
+<!-- Image Preview Modal -->
+<div id="imageModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onclick="closeModal()">
+	<div class="max-w-4xl max-h-[90vh] overflow-auto">
+		<img id="modalImage" src="" alt="Preview" class="w-full h-auto rounded-lg" onclick="event.stopPropagation()" />
+	</div>
+</div>
 
-        <!-- Images Table -->
-        <div class="glass-card rounded-2xl overflow-hidden fade-in">
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-slate-100/90 border-b border-slate-200">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Image</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Title</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Uploader</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Upload Date</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Status</th>
-                            <th class="action-col px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="imagesTable" class="divide-y divide-slate-200">
-                        @foreach (Picture picture in Model.Items)
-                        {
-                            string? normalizedStatus = picture.Status switch
-                            {
-                                Status.Pending => "pending",
-                                Status.Rejected => "rejected",
-                                Status.Banned => "rejected",
-                                _ => "approved"
-                            };
+<script>
+	// Image preview modal
+	function showImageModal(url) {
+		document.getElementById('modalImage').src = url;
+		document.getElementById('imageModal').classList.remove('hidden');
+	}
 
-                            string? statusBadgeClass = normalizedStatus switch
-                            {
-                                "pending" => "bg-yellow-100 text-yellow-800",
-                                "rejected" => "bg-red-100 text-red-800",
-                                _ => "bg-green-100 text-green-800"
-                            };
+	function closeModal() {
+		document.getElementById('imageModal').classList.add('hidden');
+	}
 
-                            string? statusLabel = normalizedStatus switch
-                            {
-                                "pending" => "Pending",
-                                "rejected" => "Rejected",
-                                _ => "Approved"
-                            };
+	// Initialize
+	document.addEventListener('DOMContentLoaded', () => {
+		const success = @Html.Raw(Json.Serialize(TempData[key: "Success"]));
+		const error = @Html.Raw(Json.Serialize(TempData[key: "Error"]));
 
-                            <tr data-status="@normalizedStatus" class="hover:bg-sky-50/40 transition-colors">
-                                <td class="px-6 py-4">
-                                    <img src="@picture.ImageURL" alt="@picture.Title" class="w-24 h-16 object-cover rounded-lg ring-1 ring-slate-200 cursor-pointer hover:scale-105 transition-transform" onclick="showImageModal('@picture.ImageURL')" />
-                                </td>
-                                <td class="px-6 py-4 text-sm font-semibold text-slate-900">@picture.Title</td>
-                                <td class="px-6 py-4 text-sm text-slate-600">@(picture.Author?.MemberName ?? "Unknown")</td>
-                                <td class="px-6 py-4 text-sm text-slate-600">@picture.UploadDate.ToString("yyyy-MM-dd HH:mm")</td>
-                                <td class="px-6 py-4">
-                                    <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full @statusBadgeClass">@statusLabel</span>
-                                </td>
-                                <td class="action-col px-6 py-4" style='@(normalizedStatus == "pending" ? "" : "display: none;")'>
-                                    <div class="flex gap-2">
-                                        <form asp-action="Approve" asp-controller="Moderator" asp-route-id="@picture.PictureID" method="post" class="inline">
-                                            <button type="submit" class="p-2 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors ring-1 ring-emerald-200" title="Approve" aria-label="Approve">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                            </button>
-                                        </form>
-                                        <form asp-action="Reject" asp-controller="Moderator" asp-route-id="@picture.PictureID" method="post" class="inline">
-                                            <button type="submit" class="p-2 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200 transition-colors ring-1 ring-rose-200" title="Reject" aria-label="Reject">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                </svg>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-            <div id="noResults" class="hidden text-center py-12 text-slate-500">
-                No images found
-            </div>
-        </div>
+		if (success) {
+			Swal.fire({
+				icon: 'success',
+				title: 'Success',
+				text: success,
+				timer: 2500,
+				showConfirmButton: false
+			}).then(() => {
+				window.location.href = '/gallery';
+			});
+		}
 
-        <!-- Pagination -->
-        @if (Model.TotalPages > 1)
-        {
-            <div class="mt-6 flex justify-center items-center gap-2 flex-wrap">
-                @if (Model.HasPreviousPage)
-                {
-                    <a href="/moderator?status=@ViewBag.CurrentFilter&page=1" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">First</a>
-                    <a href="/moderator?status=@ViewBag.CurrentFilter&page=@(Model.CurrentPage - 1)" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">Previous</a>
-                }
-
-                @for (int i = 1; i <= Model.TotalPages; i++)
-                {
-                    @if (i == Model.CurrentPage)
-                    {
-                        <span class="px-3 py-2 rounded-lg bg-sky-700 text-white font-semibold">@i</span>
-                    }
-                    else if (i >= Model.CurrentPage - 2 && i <= Model.CurrentPage + 2)
-                    {
-                        <a href="/moderator?status=@ViewBag.CurrentFilter&page=@i" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">@i</a>
-                    }
-                    else if (i == Model.CurrentPage - 3 || i == Model.CurrentPage + 3)
-                    {
-                        <span class="px-2 py-2">...</span>
-                    }
-                }
-
-                @if (Model.HasNextPage)
-                {
-                    <a href="/moderator?status=@ViewBag.CurrentFilter&page=@(Model.CurrentPage + 1)" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">Next</a>
-                    <a href="/moderator?status=@ViewBag.CurrentFilter&page=@Model.TotalPages" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">Last</a>
-                }
-            </div>
-        }
-    </main>
-
-    <!-- Image Preview Modal -->
-    <div id="imageModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onclick="closeModal()">
-        <div class="max-w-4xl max-h-[90vh] overflow-auto">
-            <img id="modalImage" src="" alt="Preview" class="w-full h-auto rounded-lg" onclick="event.stopPropagation()" />
-        </div>
-    </div>
-
-    <script>
-        // Image preview modal
-        function showImageModal(url) {
-            document.getElementById('modalImage').src = url;
-            document.getElementById('imageModal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('imageModal').classList.add('hidden');
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            const success = @Html.Raw(Json.Serialize(TempData[key: "Success"]));
-            const error = @Html.Raw(Json.Serialize(TempData[key: "Error"]));
-
-            if (success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: success,
-                    timer: 2500,
-                    showConfirmButton: false
-                }).then(() => {
-                    window.location.href = '/gallery';
-                });
-            }
-
-            if (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error,
-                    timer: 2500,
-                    showConfirmButton: false
-                });
-            }
-        });
-    </script>
-</body>
-</html>
+		if (error) {
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: error,
+				timer: 2500,
+				showConfirmButton: false
+			});
+		}
+	});
+</script>
