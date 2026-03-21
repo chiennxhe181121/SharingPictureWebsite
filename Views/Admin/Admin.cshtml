@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@model IEnumerable<Member>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,47 +14,6 @@
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <a href="index.html" class="flex items-center gap-2">
-                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    <span class="text-xl font-semibold text-gray-900">SharingPicture</span>
-                </a>
-                <div class="flex items-center gap-1">
-                    <a href="index.html" class="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                        </svg>
-                        <span>Gallery</span>
-                    </a>
-                    <a href="upload.html" class="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                        </svg>
-                        <span>Upload</span>
-                    </a>
-                    <a href="moderator.html" class="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                        </svg>
-                        <span>Moderator</span>
-                    </a>
-                    <a href="admin.html" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 text-blue-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        <span>Admin</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -73,8 +34,8 @@
                         </svg>
                     </div>
                 </div>
-                <p id="totalUsers" class="text-3xl font-semibold text-gray-900">0</p>
-                <p id="activeUsersText" class="text-sm text-gray-500 mt-1">0 active</p>
+                <p id="totalUsers" class="text-3xl font-semibold text-gray-900">@ViewBag.TotalUsers</p>
+                <p id="activeUsersText" class="text-sm text-gray-500 mt-1">@ViewBag.ActiveUsers active</p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -86,8 +47,8 @@
                         </svg>
                     </div>
                 </div>
-                <p id="totalImages" class="text-3xl font-semibold text-gray-900">0</p>
-                <p id="approvedImagesText" class="text-sm text-gray-500 mt-1">0 approved</p>
+                <p id="totalImages" class="text-3xl font-semibold text-gray-900">@ViewBag.TotalImages</p>
+                <p id="approvedImagesText" class="text-sm text-gray-500 mt-1">@ViewBag.ApprovedImages approved</p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -99,8 +60,8 @@
                         </svg>
                     </div>
                 </div>
-                <p id="activeUsers" class="text-3xl font-semibold text-gray-900">0</p>
-                <p id="activePercentText" class="text-sm text-gray-500 mt-1">0% of total</p>
+                <p id="activeUsers" class="text-3xl font-semibold text-gray-900">@ViewBag.ActiveUsers</p>
+                <p id="activePercentText" class="text-sm text-gray-500 mt-1">@ViewBag.ActivePercent% of total</p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -112,8 +73,8 @@
                         </svg>
                     </div>
                 </div>
-                <p id="bannedUsers" class="text-3xl font-semibold text-gray-900">0</p>
-                <p id="bannedPercentText" class="text-sm text-gray-500 mt-1">0% of total</p>
+                <p id="bannedUsers" class="text-3xl font-semibold text-gray-900">@ViewBag.BannedUsers</p>
+                <p id="bannedPercentText" class="text-sm text-gray-500 mt-1">@ViewBag.BannedPercent% of total</p>
             </div>
         </div>
 
@@ -135,24 +96,35 @@
                         </tr>
                     </thead>
                     <tbody id="membersTable" class="divide-y divide-gray-200">
-                        <!-- Content will be loaded by JavaScript -->
+                        @foreach (var member in Model)
+                        {
+                            var isBanned = member.Status == Status.Banned;
+                            var statusClass = isBanned ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800";
+                            var statusText = isBanned ? "Banned" : "Active";
+
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900">@member.MemberName</td>
+                                <td class="px-6 py-4 text-sm text-gray-600">@member.Email</td>
+                                <td class="px-6 py-4 text-sm text-gray-600">@(member.Role?.RoleName ?? "-")</td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @statusClass">@statusText</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex gap-2">
+                                        <form asp-action="Ban" asp-controller="Admin" asp-route-id="@member.MemberID" method="post" class="inline">
+                                            <button type="submit" class="px-3 py-1 rounded bg-red-100 text-red-700 text-sm hover:bg-red-200">Ban</button>
+                                        </form>
+                                        <form asp-action="Unban" asp-controller="Admin" asp-route-id="@member.MemberID" method="post" class="inline">
+                                            <button type="submit" class="px-3 py-1 rounded bg-green-100 text-green-700 text-sm hover:bg-green-200">Unban</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
         </div>
     </main>
-
-    <script>
-        // Ban/Unban member actions
-        function banMember(id) {
-            // This would normally send to backend
-            console.log('Ban member:', id);
-        }
-
-        function unbanMember(id) {
-            // This would normally send to backend
-            console.log('Unban member:', id);
-        }
-    </script>
 </body>
 </html>
