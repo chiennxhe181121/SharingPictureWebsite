@@ -12,9 +12,15 @@ namespace SharingPictureWebsite.Services.Interfaces
             string? description,
             int categoryId,
             int memberId,
-            int? albumId // 🔥 sửa nullable
+            int? albumId
         );
 
         UploadViewModel GetUploadData();
+
+        IEnumerable<Picture> GetAllPictures();
+
+        void ApprovePicture(int pictureId);
+
+        void RejectPicture(int pictureId);
     }
 }

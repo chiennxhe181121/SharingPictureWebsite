@@ -41,7 +41,7 @@ namespace SharingPictureWebsite.Services
             string? description,
             int categoryId,
             int memberId,
-            int? albumId // 🔥 sửa nullable
+            int? albumId
         )
         {
             // 1. Tạo folder
@@ -75,7 +75,6 @@ namespace SharingPictureWebsite.Services
             _repo.Add(picture);
             _repo.Save();
 
-            // 🔥 5. GẮN VÀO ALBUM (nếu có)
             if (albumId.HasValue && albumId.Value > 0)
             {
                 var albumPicture = new AlbumPicture
@@ -86,6 +85,33 @@ namespace SharingPictureWebsite.Services
 
                 _albumPictureRepo.Add(albumPicture);
                 _albumPictureRepo.Save();
+            }
+        }
+
+        public IEnumerable<Picture> GetAllPictures()
+        {
+            return _repo.GetAll();
+        }
+
+        public void ApprovePicture(int pictureId)
+        {
+            var picture = _repo.GetById(pictureId);
+            if (picture != null)
+            {
+                picture.Status = Status.Public;
+                _repo.Update(picture);
+                _repo.Save();
+            }
+        }
+
+        public void RejectPicture(int pictureId)
+        {
+            var picture = _repo.GetById(pictureId);
+            if (picture != null)
+            {
+                picture.Status = Status.Rejected;
+                _repo.Update(picture);
+                _repo.Save();
             }
         }
     }

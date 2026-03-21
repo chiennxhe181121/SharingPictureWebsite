@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SharingPictureWebsite.Data;
 using SharingPictureWebsite.Models;
+using SharingPictureWebsite.Repositories.Interfaces;
 
 namespace SharingPictureWebsite.Repositories
 {
-    public class MemberRepository
+    public class MemberRepository : IMemberRepository
     {
         private readonly AppDbContext _context;
 
@@ -17,6 +18,7 @@ namespace SharingPictureWebsite.Repositories
         {
             return _context.Members
                 .Include(m => m.Role)
+                .OrderBy(m => m.MemberName)
                 .ToList();
         }
 

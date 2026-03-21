@@ -19,9 +19,11 @@ builder.Services.AddScoped<IPictureRepository, PictureRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
 builder.Services.AddScoped<IAlbumPictureRepository, AlbumPictureRepository>();
+builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 
 // ================= DI: SERVICE =================
 builder.Services.AddScoped<IPictureService, PictureService>();
+builder.Services.AddScoped<IMemberService, MemberService>();
 
 var app = builder.Build();
 
