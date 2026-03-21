@@ -1,9 +1,17 @@
 ﻿using SharingPictureWebsite.Models;
+using SharingPictureWebsite.ViewModels;
 
 namespace SharingPictureWebsite.Repositories.Interfaces
 {
     public interface IPictureRepository
     {
+        (List<PictureDTO>, int totalItems) GetPublicPictures(
+    string? search,
+    int? categoryId,
+    string? sortBy,
+    int page,
+    int pageSize);
+
         IEnumerable<Picture> GetAll();
         Picture? GetById(int id);
 

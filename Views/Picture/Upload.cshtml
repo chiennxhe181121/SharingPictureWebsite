@@ -226,27 +226,29 @@
 <script>
 	document.addEventListener("DOMContentLoaded", function () {
 
-		const success = @Html.Raw(Json.Serialize(TempData["Success"]));
-		const error = @Html.Raw(Json.Serialize(TempData["Error"]));
+		const success = '@TempData["Success"]';
+		const error = '@TempData["Error"]';
 
-		if (success) {
+		if (success && success !== '') {
 			Swal.fire({
 				icon: 'success',
-				title: 'Thành công',
+				title: 'Success',
 				text: success,
 				timer: 2500,
+				timerProgressBar: true,
 				showConfirmButton: false
 			}).then(() => {
 				window.location.href = '/gallery';
 			});
 		}
 
-		if (error) {
+		if (error && error !== '') {
 			Swal.fire({
 				icon: 'error',
-				title: 'Lỗi',
+				title: 'Error',
 				text: error,
 				timer: 2500,
+				timerProgressBar: true,
 				showConfirmButton: false
 			});
 		}

@@ -1,0 +1,291 @@
+﻿@model SharingPictureWebsite.ViewModels.GalleryViewModel
+
+@{
+	ViewData["Title"] = "Gallery";
+}
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+	<!-- 🔍 FILTER -->
+	<form method="get" class="flex flex-wrap items-center justify-between gap-4 mb-8
+bg-white/80 backdrop-blur-md border border-gray-200
+p-4 rounded-2xl shadow-sm">
+
+		<!-- LEFT: SEARCH + FILTER -->
+		<div class="flex flex-wrap items-center gap-3">
+
+			<!-- 🔍 SEARCH -->
+			<div class="relative">
+				<svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+					 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+				</svg>
+
+				<input type="text" name="search" value="@Model.Search"
+					   placeholder="Search title..."
+					   class="pl-10 pr-4 py-2 border border-gray-200 rounded-xl w-56
+focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+transition bg-white" />
+			</div>
+
+			<!-- CATEGORY -->
+			<select name="categoryId" class="px-4 py-2 border border-gray-200 rounded-xl
+focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+transition bg-white">
+				<option value="">All Category</option>
+				@foreach (var c in Model.Categories)
+				{
+					<option value="@c.CategoryID"
+							selected="@(Model.CategoryId == c.CategoryID)">
+						@c.CategoryName
+					</option>
+				}
+			</select>
+
+			<!-- SORT -->
+			<select name="sortBy" class="px-4 py-2 border border-gray-200 rounded-xl
+focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+transition bg-white">
+				<option value="">Newest</option>
+				<option value="oldest" selected="@(Model.SortBy == "oldest")">Oldest</option>
+				<option value="title" selected="@(Model.SortBy == "title")">Title</option>
+			</select>
+
+			<!-- PAGE SIZE -->
+			<select name="pageSize" class="px-4 py-2 border border-gray-200 rounded-xl
+focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+transition bg-white">
+				<option value="6" selected="@(Model.PageSize == 6)">6</option>
+				<option value="9" selected="@(Model.PageSize == 9)">9</option>
+				<option value="12" selected="@(Model.PageSize == 12)">12</option>
+			</select>
+
+			<!-- 🔥 FILTER BUTTON -->
+			<button class="flex items-center gap-2 px-4 py-2
+bg-blue-600 text-white rounded-xl
+hover:bg-blue-700 active:scale-95
+transition-all duration-200 shadow-sm">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						  d="M3 4a1 1 0 011-1h16a1 1 0 01.8 1.6L14 13v5a1 1 0 01-1.447.894l-4-2A1 1 0 018 16v-3L3.2 5.6A1 1 0 013 4z" />
+				</svg>
+				Filter
+			</button>
+
+		</div>
+
+		<!-- RIGHT: GRID / LIST TOGGLE -->
+		<div class="flex items-center bg-gray-100 rounded-xl p-1">
+
+			<button type="button" id="gridBtn"
+					class="px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-width="2" d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
+				</svg>
+				Grid
+			</button>
+
+			<button type="button" id="listBtn"
+					class="px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+				</svg>
+				List
+			</button>
+
+		</div>
+
+	</form>
+
+	<!-- 🖼️ GRID -->
+	<div id="imageContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+		@if (Model.Pictures.Any())
+		{
+			@foreach (var p in Model.Pictures)
+			{
+				<a asp-controller="Picture" asp-action="Detail" asp-route-id="@p.PictureID"
+				   class="card group block bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 overflow-hidden">
+
+					<div class="relative overflow-hidden">
+
+						<!-- IMAGE -->
+						<img src="@p.ImageURL"
+							 onerror="this.onerror=null;this.src='/images/default-image.jpg';"
+							 class="image w-full h-56 object-cover transition duration-500 group-hover:scale-105" />
+
+						<!-- 🔥 GRADIENT OVERLAY -->
+						<div class="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent
+		                    opacity-0 group-hover:opacity-100 transition duration-300">
+						</div>
+
+					</div>
+
+					<!-- CONTENT -->
+					<div class="p-4">
+
+						<h3 class="font-semibold text-lg text-gray-900 truncate group-hover:text-blue-600 transition">
+							@p.Title
+						</h3>
+
+						<div class="flex justify-between items-center mt-3 text-sm">
+
+							<span class="px-2 py-1 rounded-full text-xs font-medium
+		                         bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition">
+								@(p.CategoryName ?? "No Category")
+							</span>
+
+							<span class="text-gray-400 group-hover:text-gray-600 transition text-xs">
+								@p.AuthorName
+							</span>
+
+						</div>
+
+					</div>
+				</a>
+			}
+		}
+		else
+		{
+			<div class="col-span-3 text-center py-10 text-gray-500">
+				No images found
+			</div>
+		}
+
+	</div>
+	<!-- 📄 PAGINATION -->
+	@{
+		int start = Math.Max(1, Model.CurrentPage - 1);
+		int end = Math.Min(Model.TotalPages, Model.CurrentPage + 1);
+	}
+
+	<div class="flex justify-center mt-10 gap-2">
+
+		@if (Model.CurrentPage > 1)
+		{
+			<a asp-route-page="@(Model.CurrentPage - 1)"
+			   asp-route-search="@Model.Search"
+			   asp-route-categoryId="@Model.CategoryId"
+			   asp-route-sortBy="@Model.SortBy"
+			   asp-route-pageSize="@Model.PageSize"
+			   class="px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition">&lt;</a>
+		}
+
+		@if (start > 1)
+		{
+			<a asp-route-page="1"
+			   asp-route-search="@Model.Search"
+			   asp-route-categoryId="@Model.CategoryId"
+			   asp-route-sortBy="@Model.SortBy"
+			   asp-route-pageSize="@Model.PageSize"
+			   class="px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition">1</a>
+			<span class="px-2">...</span>
+		}
+
+		@for (int i = start; i <= end; i++)
+		{
+			<a asp-route-page="@i"
+			   asp-route-search="@Model.Search"
+			   asp-route-categoryId="@Model.CategoryId"
+			   asp-route-sortBy="@Model.SortBy"
+			   asp-route-pageSize="@Model.PageSize"
+			   class="px-3 py-2 rounded @(i == Model.CurrentPage ? "bg-blue-600 text-white border-blue-600 shadow" : "bg-gray-200")">
+				@i
+			</a>
+		}
+
+		@if (end < Model.TotalPages)
+		{
+			<span class="px-2">...</span>
+			<a asp-route-page="@Model.TotalPages"
+			   asp-route-search="@Model.Search"
+			   asp-route-categoryId="@Model.CategoryId"
+			   asp-route-sortBy="@Model.SortBy"
+			   asp-route-pageSize="@Model.PageSize"
+			   class="px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition">
+				@Model.TotalPages
+			</a>
+		}
+
+		@if (Model.CurrentPage < Model.TotalPages)
+		{
+			<a asp-route-page="@(Model.CurrentPage + 1)"
+			   asp-route-search="@Model.Search"
+			   asp-route-categoryId="@Model.CategoryId"
+			   asp-route-sortBy="@Model.SortBy"
+			   asp-route-pageSize="@Model.PageSize"
+			   class="px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition">&gt;</a>
+		}
+
+	</div>
+
+</main>
+
+<style>
+	/* LIST MODE */
+	.list-mode {
+		display: flex !important;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+		.list-mode .card {
+			display: flex;
+			flex-direction: row;
+			height: 160px;
+			border-radius: 16px;
+		}
+
+		.list-mode .card-content {
+			display: flex;
+			flex-direction: row;
+			width: 100%;
+		}
+
+		.list-mode .image {
+			width: 260px;
+			height: 100%;
+			object-fit: cover;
+		}
+</style>
+
+<script>
+	const gridBtn = document.getElementById("gridBtn");
+	const listBtn = document.getElementById("listBtn");
+	const container = document.getElementById("imageContainer");
+
+	function setGrid() {
+		container.classList.remove("list-mode");
+		container.classList.add("grid", "grid-cols-1", "sm:grid-cols-2", "lg:grid-cols-3");
+
+		gridBtn.classList.add("bg-white", "shadow", "text-blue-600");
+		listBtn.classList.remove("bg-white", "shadow", "text-blue-600");
+
+		localStorage.setItem("viewMode", "grid");
+	}
+
+	function setList() {
+		container.classList.remove("grid", "grid-cols-1", "sm:grid-cols-2", "lg:grid-cols-3");
+		container.classList.add("list-mode");
+
+		listBtn.classList.add("bg-white", "shadow", "text-blue-600");
+		gridBtn.classList.remove("bg-white", "shadow", "text-blue-600");
+
+		localStorage.setItem("viewMode", "list");
+	}
+
+	gridBtn.addEventListener("click", setGrid);
+	listBtn.addEventListener("click", setList);
+
+	// 🔥 LOAD LẠI TRẠNG THÁI SAU RELOAD
+	document.addEventListener("DOMContentLoaded", () => {
+		const savedMode = localStorage.getItem("viewMode");
+
+		if (savedMode === "list") {
+			setList();
+		} else {
+			setGrid(); // mặc định grid
+		}
+	});
+</script>

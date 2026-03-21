@@ -26,6 +26,28 @@ namespace SharingPictureWebsite.Services
             _categoryRepo = categoryRepo;
         }
 
+        public GalleryViewModel GetPublicGallery(
+            string? search,
+            int? categoryId,
+            string? sortBy,
+            int page,
+            int pageSize)
+        {
+            var (pictures, totalItems) = _repo.GetPublicPictures(
+                search, categoryId, sortBy, page, pageSize);
+
+            return new GalleryViewModel
+            {
+                Pictures = pictures,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                Search = search,
+                CategoryId = categoryId,
+                SortBy = sortBy,
+                Categories = _categoryRepo.GetAll()
+            };
+        }
+
         public UploadViewModel GetUploadData()
         {
             return new UploadViewModel
