@@ -6,6 +6,14 @@ namespace SharingPictureWebsite.Services.Interfaces
 {
     public interface IPictureService
     {
+        GalleryViewModel GetPublicGallery(
+            string? search,
+            int? categoryId,
+            string? sortBy,
+            int page,
+            int pageSize);
+        ImageDetailViewModel? GetPictureDetail(int pictureId, int currentMemberId);
+
         Task UploadImageAsync(
             IFormFile file,
             string title,

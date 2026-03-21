@@ -1,0 +1,334 @@
+﻿@model SharingPictureWebsite.ViewModels.GalleryViewModel
+
+@{
+    ViewData["Title"] = "Gallery";
+}
+
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-8 fade-in p-2">
+
+    <div class="lg:col-span-3 space-y-6 order-2 lg:order-1">
+
+        <div class="flex items-center justify-between bg-white/60 backdrop-blur-md p-3 rounded-2xl border border-white/40 shadow-sm">
+            <div class="flex items-center gap-2 px-2">
+                <div class="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-xl shadow-sm border border-blue-50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span class="text-sm font-black uppercase tracking-tight">Discovery</span>
+                </div>
+            </div>
+
+            <div class="flex items-center bg-gray-200/50 rounded-xl p-1 shadow-inner">
+                <button type="button" id="gridBtn" class="px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 font-bold text-[11px] uppercase tracking-wider">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" /></svg>
+                    Grid
+                </button>
+                <button type="button" id="listBtn" class="px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 font-bold text-[11px] uppercase tracking-wider">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    List
+                </button>
+            </div>
+        </div>
+
+        <div id="imageContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-auto">
+            @if (Model.Pictures.Any())
+            {
+                @foreach (var p in Model.Pictures)
+                {
+                    <a asp-controller="Gallery" asp-action="ImageDetail" asp-route-id="@p.PictureID"
+                       class="card group block bg-white/60 backdrop-blur-sm rounded-3xl border border-white/40 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden shadow-sm">
+
+                        <div class="relative overflow-hidden aspect-[4/3] bg-gray-100 flex-shrink-0">
+                            <img src="@p.ImageURL" onerror="this.onerror=null;this.src='/images/default-image.jpg';"
+                                 class="image w-full h-full object-cover transition duration-700 group-hover:scale-110" />
+
+                            <div class="grid-overlay absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-between p-4">
+                                <div class="flex justify-end">
+                                    <button type="button"
+                                            onclick="downloadImage(event, '@p.ImageURL', '@p.Title')"
+                                            class="p-2.5 bg-black/40 hover:bg-blue-600 backdrop-blur-md rounded-xl text-white border border-white/20 shadow-xl transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 active:scale-90">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="flex justify-end">
+                                    <span class="text-white text-[10px] font-black uppercase tracking-tighter bg-blue-600/90 px-4 py-2 rounded-xl backdrop-blur-md">View Details</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-5 card-content flex flex-col justify-between">
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-bold text-gray-900 text-lg truncate group-hover:text-blue-600 transition-colors pr-4">@p.Title</h3>
+
+                                <button onclick="downloadImage(event, '@p.ImageURL', '@p.Title')"
+                                        class="list-download-btn hidden p-3 bg-blue-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all border border-blue-100 shadow-sm">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="card-info flex justify-between items-center mt-auto pt-4 border-t border-gray-100/50">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-blue-500 bg-blue-50/50 px-2 py-1 rounded-lg border border-blue-100 shrink-0">
+                                    @(p.CategoryName ?? "No Category")
+                                </span>
+                                <span class="author-name text-[11px] text-gray-400 font-medium italic">
+                                    @@@p.AuthorName
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                }
+            }
+            else
+            {
+                <div class="col-span-full text-center py-24 bg-white/20 rounded-3xl border border-dashed border-white/60">
+                    <p class="text-gray-500 font-medium italic">No images found in this gallery...</p>
+                </div>
+            }
+        </div>
+
+        @{
+            int total = Model.TotalPages;
+            int current = Model.CurrentPage;
+
+            int start = Math.Max(1, current - 2);
+            int end = Math.Min(total, current + 2);
+
+            if (current <= 3)
+            {
+                start = 1;
+                end = Math.Min(5, total);
+            }
+            else if (current >= total - 2)
+            {
+                start = Math.Max(1, total - 4);
+                end = total;
+            }
+        }
+        <div class="flex justify-center mt-12 mb-20 gap-2 flex-wrap fade-in">
+            @* Previous *@
+            @if (current > 1)
+            {
+                <a asp-route-page="@(current - 1)" asp-route-search="@Model.Search" asp-route-categoryId="@Model.CategoryId"
+                   asp-route-sortBy="@Model.SortBy" asp-route-pageSize="@Model.PageSize"
+                   class="px-3 py-1.5 rounded-md bg-white/60 backdrop-blur-md border border-white/40 hover:bg-blue-600 hover:text-white transition-all">
+                    ←
+                </a>
+            }
+
+            @* Trang đầu + ... nếu cần *@
+            @if (start > 1)
+            {
+                <a asp-route-page="1" ... class="px-3 py-1.5 rounded-md bg-white/60 backdrop-blur-md border border-white/40 hover:bg-blue-600 hover:text-white transition-all">1</a>
+                <span class="px-2 py-1 text-gray-400">...</span>
+            }
+
+            @* Các trang giữa *@
+            @for (int i = start; i <= end; i++)
+            {
+                if (i == current)
+                {
+                    <span class="px-3 py-1.5 rounded-md bg-blue-600 text-white font-bold shadow-md">@i</span>
+                }
+                else
+                {
+                    <a asp-route-page="@i" ... class="px-3 py-1.5 rounded-md bg-white/60 backdrop-blur-md border border-white/40 hover:bg-blue-600 hover:text-white transition-all">@i</a>
+                }
+            }
+
+            @* Trang cuối + ... nếu cần *@
+            @if (end < total)
+            {
+                <span class="px-2 py-1 text-gray-400">...</span>
+                <a asp-route-page="@total" ... class="px-3 py-1.5 rounded-md bg-white/60 backdrop-blur-md border border-white/40 hover:bg-blue-600 hover:text-white transition-all">@total</a>
+            }
+
+            @* Next *@
+            @if (current < total)
+            {
+                <a asp-route-page="@(current + 1)" ... class="px-3 py-1.5 rounded-md bg-white/60 backdrop-blur-md border border-white/40 hover:bg-blue-600 hover:text-white transition-all">→</a>
+            }
+        </div>
+    </div>
+
+    <div class="lg:col-span-1 order-1 lg:order-2">
+        <div class="sticky top-24 space-y-4">
+            <form method="get" class="bg-white/70 backdrop-blur-md p-8 rounded-[2.5rem] border border-white/40 shadow-2xl space-y-6">
+
+                <h2 class="text-xl font-black text-gray-900 flex items-center gap-2">
+                    <span class="w-2 h-6 bg-blue-600 rounded-full"></span>
+                    Filters
+                </h2>
+
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Search Title</label>
+                        <input type="text" name="search" value="@Model.Search" placeholder="Keywords..."
+                               class="w-full px-5 py-3.5 bg-white border-none rounded-2xl focus:ring-2 focus:ring-blue-400 shadow-inner text-sm transition-all" />
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Category</label>
+                        <select name="categoryId" class="w-full px-5 py-3.5 bg-white border-none rounded-2xl focus:ring-2 focus:ring-blue-400 shadow-inner text-sm cursor-pointer transition-all">
+                            <option value="">All Categories</option>
+                            @foreach (var c in Model.Categories)
+                            {
+                                <option value="@c.CategoryID" selected="@(Model.CategoryId == c.CategoryID)">@c.CategoryName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Sort By</label>
+                        <select name="sortBy" class="w-full px-5 py-3.5 bg-white border-none rounded-2xl focus:ring-2 focus:ring-blue-400 shadow-inner text-sm cursor-pointer transition-all">
+                            <option value="">Newest</option>
+                            <option value="oldest" selected="@(Model.SortBy == "oldest")">Oldest</option>
+                            <option value="title" selected="@(Model.SortBy == "title")">Title (A-Z)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Items Per Page</label>
+                        <select name="pageSize" class="w-full px-5 py-3.5 bg-white border-none rounded-2xl focus:ring-2 focus:ring-blue-400 shadow-inner text-sm cursor-pointer transition-all">
+                            <option value="6" selected="@(Model.PageSize == 6)">6 Items</option>
+                            <option value="9" selected="@(Model.PageSize == 9)">9 Items</option>
+                            <option value="12" selected="@(Model.PageSize == 12)">12 Items</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-6 space-y-3">
+                    <button type="submit" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black shadow-lg shadow-blue-100 hover:bg-blue-700 hover:-translate-y-1 transition-all active:scale-95">
+                        Filter Gallery
+                    </button>
+                    <a href="/gallery" class="block w-full py-3 bg-gray-100 text-gray-500 text-center rounded-2xl font-bold text-xs hover:bg-gray-200 transition-all uppercase tracking-widest">
+                        Reset Filter
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Mặc định ẩn nút download kiểu list */
+    .list-download-btn {
+        display: none;
+    }
+
+    /* Khi ở chế độ List */
+    .list-mode .grid-overlay {
+        display: none !important;
+    }
+    /* Tắt overlay trên ảnh */
+
+    .list-mode .list-download-btn {
+        display: flex !important; /* Hiện nút ở bên phải tiêu đề */
+    }
+
+    .list-mode .card {
+        display: flex !important;
+        flex-direction: row !important;
+        height: 180px; /* Thu gọn lại một chút cho thanh thoát */
+    }
+
+        .list-mode .card .relative {
+            width: 240px !important; /* Kích thước ảnh vừa đủ nhìn trong list */
+            height: 100% !important;
+        }
+
+    /* Nâng cấp List Mode */
+    .list-mode {
+        display: flex !important;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+        .list-mode .card {
+            display: flex;
+            flex-direction: row;
+            height: 220px; /* Tăng nhẹ chiều cao để thoáng hơn */
+            align-items: stretch; /* Để ảnh và nội dung cao bằng nhau */
+        }
+
+        .list-mode .image {
+            width: 320px;
+            height: 100%;
+            flex-shrink: 0;
+        }
+        /* Khối nội dung trong chế độ List */
+        .list-mode .card-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Đẩy tiêu đề lên trên, info xuống dưới */
+            padding: 24px; /* Tạo khoảng cách đều 4 phía */
+            flex: 1;
+        }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.1);
+        border-radius: 10px;
+    }
+</style>
+
+<script>
+    // Logic Toggle Grid/List
+    const gridBtn = document.getElementById("gridBtn");
+    const listBtn = document.getElementById("listBtn");
+    const container = document.getElementById("imageContainer");
+
+    function setGrid() {
+        container.classList.remove("list-mode");
+        container.classList.add("grid", "grid-cols-1", "sm:grid-cols-2", "lg:grid-cols-3");
+        gridBtn.classList.add("bg-white", "shadow-sm", "text-blue-600");
+        listBtn.classList.remove("bg-white", "shadow-sm", "text-blue-600");
+        localStorage.setItem("viewMode", "grid");
+    }
+
+    function setList() {
+        container.classList.remove("grid", "grid-cols-1", "sm:grid-cols-2", "lg:grid-cols-3");
+        container.classList.add("list-mode");
+        listBtn.classList.add("bg-white", "shadow-sm", "text-blue-600");
+        gridBtn.classList.remove("bg-white", "shadow-sm", "text-blue-600");
+        localStorage.setItem("viewMode", "list");
+    }
+
+    gridBtn.addEventListener("click", setGrid);
+    listBtn.addEventListener("click", setList);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const savedMode = localStorage.getItem("viewMode") || "grid";
+        savedMode === "list" ? setList() : setGrid();
+    });
+
+    async function downloadImage(event, url, fileName) {
+        event.preventDefault(); // Ngăn default action của button
+        event.stopPropagation(); // Ngăn bubble lên <a> cha
+
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = fileName + '.jpg';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (error) {
+            console.error("Lỗi khi tải ảnh:", error);
+            window.open(url, '_blank'); // fallback
+        }
+    }
+</script>

@@ -1,4 +1,5 @@
-﻿using SharingPictureWebsite.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SharingPictureWebsite.Models;
 using SharingPictureWebsite.Repositories.Interfaces;
 using SharingPictureWebsite.Services.Interfaces;
 using SharingPictureWebsite.ViewModels;
@@ -24,6 +25,33 @@ namespace SharingPictureWebsite.Services
             _env = env;
             _albumRepo = albumRepo;
             _categoryRepo = categoryRepo;
+        }
+
+        public GalleryViewModel GetPublicGallery(
+            string? search,
+            int? categoryId,
+            string? sortBy,
+            int page,
+            int pageSize)
+        {
+            var (pictures, totalItems) = _repo.GetPublicPictures(
+                search, categoryId, sortBy, page, pageSize);
+
+            return new GalleryViewModel
+            {
+                Pictures = pictures,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                Search = search,
+                CategoryId = categoryId,
+                SortBy = sortBy,
+                Categories = _categoryRepo.GetAll()
+            };
+        }
+
+        public ImageDetailViewModel? GetPictureDetail(int pictureId, int currentMemberId)
+        {
+            return _repo.GetPictureDetail(pictureId, currentMemberId);
         }
 
         public UploadViewModel GetUploadData()

@@ -27,30 +27,36 @@ namespace SharingPictureWebsite.Controllers
         // POST: /picture/upload
         [HttpPost("upload")]
         public async Task<IActionResult> Upload(
-    IFormFile file,
-    string title,
-    string? description,
-    int categoryId,
-    int? albumId)
+     IFormFile file,
+     string title,
+     string? description,
+     int categoryId,
+     int? albumId)
         {
             try
             {
                 if (file == null || file.Length == 0)
                 {
-                    TempData["Error"] = "Vui lòng chọn file!";
+                    TempData["Error"] = "Please select an image!";
                     return RedirectToAction("Upload");
                 }
 
-                int memberId = 1;
+                if (string.IsNullOrWhiteSpace(title))
+                {
+                    TempData["Error"] = "Title cannot be empty!";
+                    return RedirectToAction("Upload");
+                }
+
+                int memberId = 2;
 
                 await _service.UploadImageAsync(file, title, description, categoryId, memberId, albumId);
 
-                TempData["Success"] = "Upload thành công!";
+                TempData["Success"] = "Upload successful! Waiting for moderation.";
                 return RedirectToAction("Upload");
             }
             catch
             {
-                TempData["Error"] = "Upload thất bại!";
+                TempData["Error"] = "An error occurred during upload!";
                 return RedirectToAction("Upload");
             }
         }
