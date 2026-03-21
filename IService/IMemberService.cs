@@ -7,6 +7,8 @@ namespace SharingPictureWebsite.Services.Interfaces
     {
         IEnumerable<Member> GetAllMembers();
 
+        AdminDashboardViewModel GetAdminDashboard(int page, int pageSize);
+
         DashboardStatsViewModel GetDashboardStats();
 
         void BanMember(int memberId);
