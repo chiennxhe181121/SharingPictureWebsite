@@ -14,6 +14,8 @@ namespace SharingPictureWebsite.Services.Interfaces
             int pageSize);
         ImageDetailViewModel? GetPictureDetail(int pictureId, int currentMemberId);
 
+        (List<CommentViewModel> Comments, int Total) GetCommentsPaged(int pictureId, int page = 1, int pageSize = 5);
+
         Task UploadImageAsync(
             IFormFile file,
             string title,
@@ -22,6 +24,10 @@ namespace SharingPictureWebsite.Services.Interfaces
             int memberId,
             int? albumId
         );
+
+        bool ToggleLike(int pictureId, int memberId);
+        int GetLikeCount(int pictureId);
+        Comment? AddComment(int pictureId, int memberId, string content);
 
         UploadViewModel GetUploadData();
 
