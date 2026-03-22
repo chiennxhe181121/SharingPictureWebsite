@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SharingPictureWebsite.Services.Interfaces;
 using SharingPictureWebsite.ViewModels;
+using System.Security.Claims;
 
 namespace SharingPictureWebsite.Controllers
 {
@@ -8,6 +10,20 @@ namespace SharingPictureWebsite.Controllers
     public class GalleryController : Controller
     {
         private readonly IPictureService _service;
+
+        // --- Helper lấy MemberID từ claim ---
+        private int GetCurrentMemberId()
+        {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var memberIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(memberIdClaim) && int.TryParse(memberIdClaim, out int memberId))
+                {
+                    return memberId;
+                }
+            }
+            return 0; // 0 hoặc throw nếu muốn bắt lỗi khi chưa đăng nhập
+        }
 
         public GalleryController(IPictureService service)
         {
@@ -30,8 +46,7 @@ namespace SharingPictureWebsite.Controllers
         [HttpGet("image/{id}")]
         public IActionResult ImageDetail(int id)
         {
-            int currentMemberId = 2; // tạm gán member id 2
-
+            int currentMemberId = GetCurrentMemberId();
             var model = _service.GetPictureDetail(id, currentMemberId);
             if (model == null)
                 return NotFound();
@@ -42,7 +57,7 @@ namespace SharingPictureWebsite.Controllers
         [HttpPost("image/{id}/like")]
         public IActionResult ToggleLike(int id)
         {
-            int currentMemberId = 2; // TODO: lấy từ User.Identity
+            int currentMemberId = GetCurrentMemberId();
             bool isLiked = _service.ToggleLike(id, currentMemberId);
             int likeCount = _service.GetLikeCount(id);
             return Json(new { success = true, isLiked, likeCount });
@@ -59,7 +74,7 @@ namespace SharingPictureWebsite.Controllers
         [HttpPost("image/{id}/comment")]
         public IActionResult AddComment(int id, [FromBody] CommentRequest request)
         {
-            int currentMemberId = 2; // TODO: lấy từ User.Identity
+            int currentMemberId = GetCurrentMemberId();
             if (request == null || string.IsNullOrWhiteSpace(request.Content))
                 return BadRequest("Empty comment");
 

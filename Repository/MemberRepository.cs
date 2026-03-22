@@ -34,6 +34,25 @@ namespace SharingPictureWebsite.Repositories
             return _context.Members.FirstOrDefault(m => m.Email == email);
         }
 
+        public Member? GetByUsername(string username)
+        {
+            return _context.Members
+                .Include(m => m.Role)
+                .FirstOrDefault(m => m.MemberName == username);
+        }
+
+        // Thêm login check
+        public Member? ValidateLogin(string emailOrUsername, string password)
+        {
+            return _context.Members
+                .Include(m => m.Role)
+                .FirstOrDefault(m =>
+                    (m.Email == emailOrUsername || m.MemberName == emailOrUsername) &&
+                    m.Password == password &&
+                    m.Status == Status.Active
+                );
+        }
+
         public void Add(Member member)
         {
             _context.Members.Add(member);

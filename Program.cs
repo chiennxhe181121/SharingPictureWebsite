@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 using SharingPictureWebsite.Data;
 using SharingPictureWebsite.Repositories;
 using SharingPictureWebsite.Repositories.Interfaces;
@@ -9,6 +10,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ================= ADD SERVICES =================
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Auth/Login";
+        options.AccessDeniedPath = "/Auth/AccessDenied"; // tạo view AccessDenied
+        options.ExpireTimeSpan = TimeSpan.FromHours(4);
+        options.SlidingExpiration = true;
+    });
+
+builder.Services.AddAuthorization();
 
 // DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -25,6 +37,14 @@ builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<IPictureService, PictureService>();
 builder.Services.AddScoped<IMemberService, MemberService>();
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(1);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
 // ================= MIDDLEWARE =================
@@ -36,8 +56,12 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles(); // 🔥 QUAN TRỌNG cho upload ảnh
-
 app.UseRouting();
+
+// ❌ Session vẫn có thể giữ, nhưng auth cookie bắt buộc phải có
+app.UseSession();
+
+app.UseAuthentication();  // phải trước UseAuthorization
 app.UseAuthorization();
 
 // ================= ROUTING =================

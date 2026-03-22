@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharingPictureWebsite.Services.Interfaces;
 
 namespace SharingPictureWebsite.Controllers
 {
+    [Authorize(Roles = "Moderator")]
     [Route("moderator")]
     public class ModeratorController : Controller
     {
