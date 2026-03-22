@@ -39,6 +39,8 @@ namespace SharingPictureWebsite.Services.Interfaces
 
         PaginationViewModel<Picture> GetModeratorPicturesPaged(string? status, int page = 1, int pageSize = 5);
 
+        ModeratorDashboardViewModel GetModeratorDashboard(string? status, int page = 1, int pageSize = 5);
+
         ModeratorStatusStatsViewModel GetModeratorStatusStats();
 
         void ApprovePicture(int pictureId);

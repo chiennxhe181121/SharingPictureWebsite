@@ -17,15 +17,8 @@ namespace SharingPictureWebsite.Controllers
         [HttpGet("index")]
         public IActionResult Moderator(string? status = "all", int page = 1)
         {
-            var pagedPictures = _pictureService.GetModeratorPicturesPaged(status, page);
-            var stats = _pictureService.GetModeratorStatusStats();
-
-            ViewBag.CurrentFilter = status ?? "all";
-            ViewBag.PendingCount = stats.PendingCount;
-            ViewBag.ApprovedCount = stats.ApprovedCount;
-            ViewBag.RejectedCount = stats.RejectedCount;
-
-            return View(pagedPictures);
+            var dashboard = _pictureService.GetModeratorDashboard(status, page);
+            return View(dashboard);
         }
 
         [HttpPost("approve/{id:int}")]
@@ -35,11 +28,11 @@ namespace SharingPictureWebsite.Controllers
             try
             {
                 _pictureService.ApprovePicture(id);
-                TempData["Success"] = "Duyet anh thanh cong!";
+                TempData["Success"] = "Image approved successfully!";
             }
             catch (Exception)
             {
-                TempData["Error"] = "Khong tim thay anh de duyet.";
+                TempData["Error"] = "Image not found for approval.";
             }
 
             return RedirectToAction("Moderator");
@@ -52,11 +45,11 @@ namespace SharingPictureWebsite.Controllers
             try
             {
                 _pictureService.RejectPicture(id);
-                TempData["Success"] = "Tu choi anh thanh cong!";
+                TempData["Success"] = "Image rejected successfully!";
             }
             catch (Exception)
             {
-                TempData["Error"] = "Khong tim thay anh de tu choi.";
+                TempData["Error"] = "Image not found for rejection.";
             }
 
             return RedirectToAction("Moderator");

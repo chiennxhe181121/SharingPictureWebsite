@@ -182,6 +182,16 @@ namespace SharingPictureWebsite.Services
             };
         }
 
+        public ModeratorDashboardViewModel GetModeratorDashboard(string? status, int page = 1, int pageSize = 5)
+        {
+            return new ModeratorDashboardViewModel
+            {
+                Pictures = GetModeratorPicturesPaged(status, page, pageSize),
+                Stats = GetModeratorStatusStats(),
+                CurrentFilter = string.IsNullOrWhiteSpace(status) ? "all" : status.ToLower()
+            };
+        }
+
         public PaginationViewModel<Picture> GetModeratorPicturesPaged(string? status, int page = 1, int pageSize = 5)
         {
             var allPictures = GetModeratorPicturesByStatus(status).ToList();
