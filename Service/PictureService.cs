@@ -54,6 +54,15 @@ namespace SharingPictureWebsite.Services
             return _repo.GetPictureDetail(pictureId, currentMemberId);
         }
 
+        // Lấy comment phân trang
+        public (List<CommentViewModel> Comments, int Total) GetCommentsPaged(int pictureId, int page = 1, int pageSize = 5)
+        {
+            var comments = _repo.GetComments(pictureId, page, pageSize);
+            var total = _repo.GetCommentCount(pictureId);
+
+            return (comments, total);
+        }
+
         public UploadViewModel GetUploadData()
         {
             return new UploadViewModel
@@ -114,6 +123,20 @@ namespace SharingPictureWebsite.Services
                 _albumPictureRepo.Add(albumPicture);
                 _albumPictureRepo.Save();
             }
+        }
+        public bool ToggleLike(int pictureId, int memberId)
+        {
+            return _repo.ToggleLike(pictureId, memberId);
+        }
+
+        public int GetLikeCount(int pictureId)
+        {
+            return _repo.GetLikeCount(pictureId);
+        }
+
+        public Comment? AddComment(int pictureId, int memberId, string content)
+        {
+            return _repo.AddComment(pictureId, memberId, content);
         }
 
         public IEnumerable<Picture> GetAllPictures()
