@@ -31,6 +31,16 @@ namespace SharingPictureWebsite.Controllers
         {
             try
             {
+                var currentAdminId = int.TryParse(
+                    User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "-1",
+                    out var id_result) ? id_result : -1;
+
+                if (currentAdminId == id)
+                {
+                    TempData["Error"] = "You cannot ban your own account.";
+                    return RedirectToAction("Admin", new { page });
+                }
+
                 _memberService.BanMember(id);
                 TempData["Success"] = "User has been banned successfully.";
             }
