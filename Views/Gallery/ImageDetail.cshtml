@@ -179,13 +179,18 @@
                 }
             });
 
+            if (response.status === 401) {
+                // redirect sang login
+                window.location.href = '/login';
+                return;
+            }
+
             if (!response.ok) throw new Error('Network response was not ok');
 
             const data = await response.json();
             isLiked = data.isLiked;
             likeCount = data.likeCount;
 
-            // Update UI
             if (isLiked) {
                 likeBtn.classList.remove('bg-white/90', 'text-gray-700');
                 likeBtn.classList.add('bg-red-500', 'text-white');
@@ -205,54 +210,56 @@
     // Comment form handler
     const commentForm = document.getElementById('commentForm');
     if (commentForm) {
-        commentForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const input = document.getElementById('commentInput');
-            const content = input.value.trim();
-            if (!content) return;
+    // Comment form
+    commentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = document.getElementById('commentInput');
+        const content = input.value.trim();
+        if (!content) return;
 
-            const pictureId = @Model.PictureID;
-            try {
-                const response = await fetch(`/Gallery/image/${pictureId}/comment`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                    },
-                    body: JSON.stringify({ content })
-                });
+        const pictureId = @Model.PictureID;
+        try {
+            const response = await fetch(`/Gallery/image/${pictureId}/comment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                },
+                body: JSON.stringify({ content })
+            });
 
-                if (!response.ok) throw new Error('Network response was not ok');
-
-                const data = await response.json();
-    if (data.success) {
-        // Thêm comment mới vào UI
-        const commentsList = document.getElementById('commentsList');
-        const commentEl = document.createElement('div');
-        commentEl.className = "p-4 bg-white/80 rounded-2xl border border-white/50 shadow-sm hover:shadow-md transition-all flex gap-3";
-        commentEl.innerHTML = `
-            <img src="${data.comment.avatarUrl}" alt="${data.comment.userName}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
-            <div class="flex-1">
-                <div class="flex justify-between items-start mb-1">
-                    <span class="font-bold text-blue-600 text-sm">${data.comment.userName}</span>
-                    <span class="text-[10px] text-gray-400 uppercase tracking-widest font-medium">${data.comment.createdAt}</span>
-                </div>
-                <p class="text-gray-700 leading-relaxed text-sm">${data.comment.content}</p>
-            </div>
-        `;
-        commentsList.prepend(commentEl);
-
-        // Reset input
-        input.value = '';
-
-        // 🔥 Cập nhật ngay tổng số comment
-        const commentCountEl = document.getElementById('commentCount');
-        commentCountEl.textContent = parseInt(commentCountEl.textContent) + 1;
-    }
-            } catch (err) {
-                console.error('Error when submitting a comment:', err);
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
             }
-        });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const data = await response.json();
+            if (data.success) {
+                // thêm comment vào UI
+                const commentsList = document.getElementById('commentsList');
+                const commentEl = document.createElement('div');
+                commentEl.className = "p-4 bg-white/80 rounded-2xl border border-white/50 shadow-sm hover:shadow-md transition-all flex gap-3";
+                commentEl.innerHTML = `
+                    <img src="${data.comment.avatarUrl}" alt="${data.comment.userName}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="font-bold text-blue-600 text-sm">${data.comment.userName}</span>
+                            <span class="text-[10px] text-gray-400 uppercase tracking-widest font-medium">${data.comment.createdAt}</span>
+                        </div>
+                        <p class="text-gray-700 leading-relaxed text-sm">${data.comment.content}</p>
+                    </div>
+                `;
+                commentsList.prepend(commentEl);
+                input.value = '';
+                const commentCountEl = document.getElementById('commentCount');
+                commentCountEl.textContent = parseInt(commentCountEl.textContent) + 1;
+            }
+        } catch (err) {
+            console.error('Error when submitting a comment:', err);
+        }
+    });
     }
 
         async function downloadImage(event, url, fileName) {

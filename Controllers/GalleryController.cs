@@ -58,6 +58,9 @@ namespace SharingPictureWebsite.Controllers
         public IActionResult ToggleLike(int id)
         {
             int currentMemberId = GetCurrentMemberId();
+            if (currentMemberId == 0)
+                return Unauthorized(); // chưa login
+
             bool isLiked = _service.ToggleLike(id, currentMemberId);
             int likeCount = _service.GetLikeCount(id);
             return Json(new { success = true, isLiked, likeCount });
@@ -75,11 +78,13 @@ namespace SharingPictureWebsite.Controllers
         public IActionResult AddComment(int id, [FromBody] CommentRequest request)
         {
             int currentMemberId = GetCurrentMemberId();
+            if (currentMemberId == 0)
+                return Unauthorized(); // chưa login
+
             if (request == null || string.IsNullOrWhiteSpace(request.Content))
                 return BadRequest("Empty comment");
 
             var comment = _service.AddComment(id, currentMemberId, request.Content);
-
             if (comment == null)
                 return BadRequest("Cannot add comments");
 
@@ -92,10 +97,10 @@ namespace SharingPictureWebsite.Controllers
                     content = comment.Content,
                     createdAt = comment.CreatedAt.ToString("g"),
                     avatarUrl = string.IsNullOrEmpty(comment.Member.AvatarURL)
-    ? Url.Content("~/images/user/default-avatar.jpg")
-    : comment.Member.AvatarURL.StartsWith("http")
-        ? comment.Member.AvatarURL
-        : Url.Content("~/" + comment.Member.AvatarURL)
+                        ? Url.Content("~/images/user/default-avatar.jpg")
+                        : comment.Member.AvatarURL.StartsWith("http")
+                            ? comment.Member.AvatarURL
+                            : Url.Content("~/" + comment.Member.AvatarURL)
                 }
             });
         }
