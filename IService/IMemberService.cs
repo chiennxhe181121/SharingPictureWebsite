@@ -21,5 +21,8 @@ namespace SharingPictureWebsite.Services.Interfaces
         void BanMember(int memberId);
 
         void UnbanMember(int memberId);
+        
+        void UpdateMemberRole(int memberId, int roleId);
+        IEnumerable<Role> GetAllRoles();
     }
 }

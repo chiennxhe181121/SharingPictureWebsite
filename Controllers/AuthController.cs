@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using SharingPictureWebsite.Services.Interfaces;
 using System.Security.Claims;
-using SharingPictureWebsite.Services.Interfaces;
 using SharingPictureWebsite.ViewModels;
 
 namespace SharingPictureWebsite.Controllers

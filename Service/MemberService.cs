@@ -55,7 +55,8 @@ namespace SharingPictureWebsite.Services
                     TotalPages = totalPages,
                     TotalItems = totalItems,
                     PageSize = pageSize
-                }
+                },
+                Roles = GetAllRoles()
             };
         }
 
@@ -183,6 +184,17 @@ namespace SharingPictureWebsite.Services
         {
             _memberRepository.Unban(memberId);
             _memberRepository.Save();
+        }
+        
+        public void UpdateMemberRole(int memberId, int roleId)
+        {
+            _memberRepository.UpdateMemberRole(memberId, roleId);
+            _memberRepository.Save();
+        }
+        
+        public IEnumerable<Role> GetAllRoles()
+        {
+            return _memberRepository.GetAllRoles();
         }
     }
 }

@@ -6,5 +6,6 @@ namespace SharingPictureWebsite.ViewModels
     {
         public DashboardStatsViewModel Stats { get; set; } = new();
         public PaginationViewModel<Member> Members { get; set; } = new();
+        public IEnumerable<Role> Roles { get; set; } = new List<Role>();
     }
 }

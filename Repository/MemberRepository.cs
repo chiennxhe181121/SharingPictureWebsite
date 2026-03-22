@@ -111,6 +111,21 @@ namespace SharingPictureWebsite.Repositories
                 Update(user);
             }
         }
+        
+        public void UpdateMemberRole(int memberId, int roleId)
+        {
+            var member = GetById(memberId);
+            if (member != null)
+            {
+                member.RoleID = roleId;
+                Update(member);
+            }
+        }
+        
+        public IEnumerable<Role> GetAllRoles()
+        {
+            return _context.Roles.Where(r => r.Status == Status.Active).ToList();
+        }
 
         public int Count()
         {
