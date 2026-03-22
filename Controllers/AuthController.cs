@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using SharingPictureWebsite.Services.Interfaces;
 using System.Security.Claims;
+using SharingPictureWebsite.Services.Interfaces;
+using SharingPictureWebsite.ViewModels;
 
 namespace SharingPictureWebsite.Controllers
 {
@@ -73,7 +75,27 @@ namespace SharingPictureWebsite.Controllers
         [HttpGet("register")]
         public IActionResult Register()
         {
-            return View();
+            return View(new RegisterRequestViewModel());
+        }
+
+        [HttpPost("register")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Register(RegisterRequestViewModel request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(request);
+            }
+
+            var result = _memberService.Register(request);
+            if (!result.Success)
+            {
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Registration failed.");
+                return View(request);
+            }
+
+            TempData["Success"] = "Registration successful. Please sign in.";
+            return RedirectToAction(nameof(Login));
         }
     }
 }

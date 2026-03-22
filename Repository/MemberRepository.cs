@@ -31,7 +31,23 @@ namespace SharingPictureWebsite.Repositories
 
         public Member? GetByEmail(string email)
         {
-            return _context.Members.FirstOrDefault(m => m.Email == email);
+            var normalizedEmail = email.Trim().ToLower();
+            return _context.Members.FirstOrDefault(m => m.Email.ToLower() == normalizedEmail);
+        }
+
+        public Member? GetByMemberName(string memberName)
+        {
+            var normalizedMemberName = memberName.Trim().ToLower();
+            return _context.Members.FirstOrDefault(m => m.MemberName.ToLower() == normalizedMemberName);
+        }
+
+        public int? GetRoleIdByName(string roleName)
+        {
+            var normalizedRoleName = roleName.Trim().ToLower();
+            return _context.Roles
+                .Where(r => r.RoleName.ToLower() == normalizedRoleName)
+                .Select(r => (int?)r.RoleID)
+                .FirstOrDefault();
         }
 
         public Member? GetByUsername(string username)

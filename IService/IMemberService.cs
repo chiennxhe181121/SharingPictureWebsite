@@ -16,6 +16,8 @@ namespace SharingPictureWebsite.Services.Interfaces
 
         DashboardStatsViewModel GetDashboardStats();
 
+        (bool Success, string? ErrorMessage) Register(RegisterRequestViewModel request);
+
         void BanMember(int memberId);
 
         void UnbanMember(int memberId);

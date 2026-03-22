@@ -9,6 +9,8 @@ namespace SharingPictureWebsite.Repositories.Interfaces
         Member? GetByEmail(string email);
         Member? GetByUsername(string username);
         Member? ValidateLogin(string emailOrUsername, string password);
+        Member? GetByMemberName(string memberName);
+        int? GetRoleIdByName(string roleName);
 
         void Add(Member member);
         void Update(Member member);
