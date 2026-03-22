@@ -112,3 +112,34 @@
         });
     }
 </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const success = '@TempData["Success"]';
+        const error = '@TempData["Error"]';
+
+        if (success && success !== '') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: success,
+                timer: 2500,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+        }
+
+        if (error && error !== '') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error,
+                timer: 2500,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+        }
+
+    });
+</script>

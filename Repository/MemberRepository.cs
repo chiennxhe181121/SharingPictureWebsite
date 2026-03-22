@@ -2,6 +2,7 @@
 using SharingPictureWebsite.Data;
 using SharingPictureWebsite.Models;
 using SharingPictureWebsite.Repositories.Interfaces;
+using SharingPictureWebsite.Service.Security;
 
 namespace SharingPictureWebsite.Repositories
 {
@@ -57,16 +58,23 @@ namespace SharingPictureWebsite.Repositories
                 .FirstOrDefault(m => m.MemberName == username);
         }
 
-        // Thêm login check
         public Member? ValidateLogin(string emailOrUsername, string password)
         {
-            return _context.Members
+            var user = _context.Members
                 .Include(m => m.Role)
                 .FirstOrDefault(m =>
                     (m.Email == emailOrUsername || m.MemberName == emailOrUsername) &&
-                    m.Password == password &&
                     m.Status == Status.Active
                 );
+
+            if (user == null)
+                return null;
+
+            // Check password hash
+            if (!AppPasswordHasher.VerifyPassword(password, user.Password))
+                return null;
+
+            return user;
         }
 
         public void Add(Member member)
