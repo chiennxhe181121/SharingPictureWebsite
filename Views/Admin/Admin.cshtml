@@ -112,7 +112,7 @@
 							@Html.AntiForgeryToken()
 							<input type="hidden" name="page" value="@Model.Members.CurrentPage" />
 							<select name="roleId" class="px-3 py-1 text-xs rounded border border-gray-300 @(isCurrentUser ? "bg-gray-100 cursor-not-allowed" : "bg-white cursor-pointer")" @(isCurrentUser ? "disabled" : "")>
-								@foreach (var role in Model.Roles)
+								@foreach (var role in Model.Roles.Where(r => r.RoleName != "Admin" || member.RoleID == r.RoleID))
 								{
 									<option value="@role.RoleID" selected="@(member.RoleID == role.RoleID)">@role.RoleName</option>
 								}

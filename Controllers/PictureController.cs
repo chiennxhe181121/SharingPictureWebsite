@@ -10,7 +10,6 @@ namespace SharingPictureWebsite.Controllers
     {
         private readonly IPictureService _service;
 
-        // --- Helper lấy MemberID từ claim ---
         private int GetCurrentMemberId()
         {
             if (User.Identity?.IsAuthenticated == true)
@@ -21,7 +20,7 @@ namespace SharingPictureWebsite.Controllers
                     return memberId;
                 }
             }
-            return 0; // 0 hoặc throw nếu muốn bắt lỗi khi chưa đăng nhập
+            return 0; 
         }
 
         public PictureController(IPictureService service)
@@ -29,8 +28,7 @@ namespace SharingPictureWebsite.Controllers
             _service = service;
         }
 
-        // ================= VIEW UPLOAD =================
-        // GET: /picture/upload
+  
         [HttpGet("upload")]
         public IActionResult Upload()
         {
@@ -38,8 +36,6 @@ namespace SharingPictureWebsite.Controllers
             return View(model);
         }
 
-        // ================= HANDLE UPLOAD =================
-        // POST: /picture/upload
         [HttpPost("upload")]
         public async Task<IActionResult> Upload(
      IFormFile file,
