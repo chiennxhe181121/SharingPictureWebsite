@@ -91,15 +91,44 @@ namespace SharingPictureWebsite.Repositories
                     CreatedAt = p.UploadDate,
                     LikeCount = p.Likes.Count,
                     IsLiked = p.Likes.Any(l => l.MemberID == currentMemberId), // check tạm member id 2
+
                     Comments = p.Comments
-                                .OrderByDescending(c => c.CreatedAt)
-                                .Select(c => new CommentViewModel
-                                {
-                                    UserName = c.Member.FullName,
-                                    Content = c.Content,
-                                    CreatedAt = c.CreatedAt
-                                }).ToList()
+            .OrderByDescending(c => c.CreatedAt)
+            .Take(5)
+            .Select(c => new CommentViewModel
+            {
+                UserName = c.Member.FullName,
+                Content = c.Content,
+                CreatedAt = c.CreatedAt,
+                AvatarUrl = string.IsNullOrEmpty(c.Member.AvatarURL)
+                    ? "/images/user/default-avatar.jpg"
+                    : c.Member.AvatarURL.StartsWith("http") ? c.Member.AvatarURL : "/" + c.Member.AvatarURL
+            }).ToList(),
+                    CommentTotal = p.Comments.Count
                 }).FirstOrDefault();
+        }
+
+        public List<CommentViewModel> GetComments(int pictureId, int page = 1, int pageSize = 5)
+        {
+            return _context.Comments
+                .Where(c => c.PictureID == pictureId)
+                .OrderByDescending(c => c.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(c => new CommentViewModel
+                {
+                    UserName = c.Member.FullName,
+                    Content = c.Content,
+                    CreatedAt = c.CreatedAt,
+                    AvatarUrl = string.IsNullOrEmpty(c.Member.AvatarURL)
+                        ? "/images/user/default-avatar.jpg"
+                        : c.Member.AvatarURL.StartsWith("http") ? c.Member.AvatarURL : "/" + c.Member.AvatarURL
+                }).ToList();
+        }
+
+        public int GetCommentCount(int pictureId)
+        {
+            return _context.Comments.Count(c => c.PictureID == pictureId);
         }
 
         public Picture? GetById(int id)
@@ -108,6 +137,59 @@ namespace SharingPictureWebsite.Repositories
                 .Include(p => p.Author)
                 .Include(p => p.Category)
                 .FirstOrDefault(p => p.PictureID == id);
+        }
+
+        public bool ToggleLike(int pictureId, int memberId)
+        {
+            var existingLike = _context.Likes
+                .FirstOrDefault(l => l.PictureID == pictureId && l.MemberID == memberId);
+
+            if (existingLike != null)
+            {
+                _context.Likes.Remove(existingLike);
+                _context.SaveChanges();
+                return false; // vừa unlike
+            }
+            else
+            {
+                var like = new Like
+                {
+                    PictureID = pictureId,
+                    MemberID = memberId
+                };
+                _context.Likes.Add(like);
+                _context.SaveChanges();
+                return true; // vừa like
+            }
+        }
+        public int GetLikeCount(int pictureId)
+        {
+            return _context.Likes.Count(l => l.PictureID == pictureId);
+        }
+
+        public Comment? AddComment(int pictureId, int memberId, string content)
+        {
+            var picture = _context.Pictures.FirstOrDefault(p => p.PictureID == pictureId);
+            var member = _context.Members.FirstOrDefault(m => m.MemberID == memberId);
+
+            if (picture == null || member == null || string.IsNullOrWhiteSpace(content))
+                return null;
+
+            var comment = new Comment
+            {
+                PictureID = pictureId,
+                MemberID = memberId,
+                Content = content,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Comments.Add(comment);
+            _context.SaveChanges();
+
+            // load đầy đủ thông tin member để frontend render
+            comment.Member = member;
+
+            return comment;
         }
 
         public void Add(Picture picture)

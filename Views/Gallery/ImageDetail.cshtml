@@ -65,7 +65,7 @@
         <div class="space-y-6">
             <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
                 <span class="w-2 h-6 bg-blue-500 rounded-full"></span>
-                Comments (@Model.Comments.Count)
+                Comments (<span id="commentCount">@Model.CommentTotal</span>)
             </h3>
 
             <form id="commentForm" class="relative group">
@@ -75,19 +75,8 @@
                     Post
                 </button>
             </form>
-
-            <div id="commentsList" class="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                @foreach (var comment in Model.Comments)
-                {
-                    <div class="p-4 bg-white/80 rounded-2xl border border-white/50 shadow-sm hover:shadow-md transition-all">
-                        <div class="flex justify-between items-start mb-1">
-                            <span class="font-bold text-blue-600 text-sm">@comment.UserName</span>
-                            <span class="text-[10px] text-gray-400 uppercase tracking-widest font-medium">@comment.CreatedAt.ToString("g")</span>
-                        </div>
-                        <p class="text-gray-700 leading-relaxed text-sm">@comment.Content</p>
-                    </div>
-                }
-            </div>
+            <div id="commentsList" class="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar"></div>
+            <button id="loadMoreComments" class="w-full py-2 mt-2 text-sm font-bold text-blue-600 hover:underline">Load more</button>
         </div>
     </div>
 
@@ -175,40 +164,163 @@
     let isLiked = @Model.IsLiked.ToString().ToLower();
     let likeCount = @Model.LikeCount;
 
-    function toggleLike() {
-        isLiked = !isLiked;
+    async function toggleLike() {
+        const pictureId = @Model.PictureID;
         const likeBtn = document.getElementById('likeBtn');
         const likeIcon = document.getElementById('likeIcon');
         const likeCountSpan = document.getElementById('likeCount');
 
-        if (isLiked) {
-            likeCount++;
-            likeBtn.classList.remove('bg-white/90', 'text-gray-700');
-            likeBtn.classList.add('bg-red-500', 'text-white');
-            likeIcon.setAttribute('fill', 'currentColor');
-        } else {
-            likeCount--;
-            likeBtn.classList.remove('bg-red-500', 'text-white');
-            likeBtn.classList.add('bg-white/90', 'text-gray-700');
-            likeIcon.setAttribute('fill', 'none');
-        }
+        try {
+            const response = await fetch(`/Gallery/image/${pictureId}/like`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                }
+            });
 
-        likeCountSpan.textContent = likeCount;
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const data = await response.json();
+            isLiked = data.isLiked;
+            likeCount = data.likeCount;
+
+            // Update UI
+            if (isLiked) {
+                likeBtn.classList.remove('bg-white/90', 'text-gray-700');
+                likeBtn.classList.add('bg-red-500', 'text-white');
+                likeIcon.setAttribute('fill', 'currentColor');
+            } else {
+                likeBtn.classList.remove('bg-red-500', 'text-white');
+                likeBtn.classList.add('bg-white/90', 'text-gray-700');
+                likeIcon.setAttribute('fill', 'none');
+            }
+            likeCountSpan.textContent = likeCount;
+
+        } catch (err) {
+            console.error('Error when liking photos:', err);
+        }
     }
 
     // Comment form handler
     const commentForm = document.getElementById('commentForm');
     if (commentForm) {
-        commentForm.addEventListener('submit', (e) => {
+        commentForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const input = document.getElementById('commentInput');
             const content = input.value.trim();
+            if (!content) return;
 
-            if (content) {
-                // Xử lý gửi comment (AJAX hoặc Postback) ở đây
-                console.log('Comment submitted:', content);
-                input.value = '';
+            const pictureId = @Model.PictureID;
+            try {
+                const response = await fetch(`/Gallery/image/${pictureId}/comment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: JSON.stringify({ content })
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const data = await response.json();
+    if (data.success) {
+        // Thêm comment mới vào UI
+        const commentsList = document.getElementById('commentsList');
+        const commentEl = document.createElement('div');
+        commentEl.className = "p-4 bg-white/80 rounded-2xl border border-white/50 shadow-sm hover:shadow-md transition-all flex gap-3";
+        commentEl.innerHTML = `
+            <img src="${data.comment.avatarUrl}" alt="${data.comment.userName}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+            <div class="flex-1">
+                <div class="flex justify-between items-start mb-1">
+                    <span class="font-bold text-blue-600 text-sm">${data.comment.userName}</span>
+                    <span class="text-[10px] text-gray-400 uppercase tracking-widest font-medium">${data.comment.createdAt}</span>
+                </div>
+                <p class="text-gray-700 leading-relaxed text-sm">${data.comment.content}</p>
+            </div>
+        `;
+        commentsList.prepend(commentEl);
+
+        // Reset input
+        input.value = '';
+
+        // 🔥 Cập nhật ngay tổng số comment
+        const commentCountEl = document.getElementById('commentCount');
+        commentCountEl.textContent = parseInt(commentCountEl.textContent) + 1;
+    }
+            } catch (err) {
+                console.error('Error when submitting a comment:', err);
             }
         });
     }
+
+        async function downloadImage(event, url, fileName) {
+        event.preventDefault(); // Ngăn default action của button
+        event.stopPropagation(); // Ngăn bubble lên <a> cha
+
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = fileName + '.jpg';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (error) {
+            console.error("Lỗi khi tải ảnh:", error);
+            window.open(url, '_blank'); // fallback
+        }
+    }
+
+        let currentCommentPage = 1;
+    const pageSize = 5; // giống backend
+
+    async function loadComments(page = 1) {
+        try {
+            const response = await fetch(`/Gallery/image/@Model.PictureID/comments?page=${page}`);
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const data = await response.json();
+            const commentsList = document.getElementById('commentsList');
+
+            data.comments.forEach(c => {
+                const commentEl = document.createElement('div');
+                commentEl.className = "p-4 bg-white/80 rounded-2xl border border-white/50 shadow-sm hover:shadow-md transition-all flex gap-3";
+                commentEl.innerHTML = `
+                    <img src="${c.avatarUrl}" alt="${c.userName}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="font-bold text-blue-600 text-sm">${c.userName}</span>
+                            <span class="text-[10px] text-gray-400 uppercase tracking-widest font-medium">${c.createdAt}</span>
+                        </div>
+                        <p class="text-gray-700 leading-relaxed text-sm">${c.content}</p>
+                    </div>
+                `;
+                commentsList.appendChild(commentEl);
+            });
+
+            // Nếu đã load hết, ẩn nút Load more
+            if (commentsList.children.length >= data.total) {
+                document.getElementById('loadMoreComments').style.display = 'none';
+            }
+
+        } catch (err) {
+            console.error('Error loading comments:', err);
+        }
+    }
+
+    // Load comment đầu tiên
+    loadComments(currentCommentPage);
+
+    // Bắt sự kiện nút Load More
+    document.getElementById('loadMoreComments').addEventListener('click', () => {
+        currentCommentPage++;
+        loadComments(currentCommentPage);
+    });
 </script>
