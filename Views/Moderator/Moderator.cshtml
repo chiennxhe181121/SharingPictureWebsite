@@ -1,10 +1,11 @@
 ﻿@using SharingPictureWebsite.Models
 @using SharingPictureWebsite.ViewModels
-@model PaginationViewModel<Picture>
+@model ModeratorDashboardViewModel
 @{
-	var pendingCount = (int)(ViewBag.PendingCount ?? 0);
-	var approvedCount = (int)(ViewBag.ApprovedCount ?? 0);
-	var rejectedCount = (int)(ViewBag.RejectedCount ?? 0);
+	var pendingCount = Model.Stats.PendingCount;
+	var approvedCount = Model.Stats.ApprovedCount;
+	var rejectedCount = Model.Stats.RejectedCount;
+	var currentFilter = Model.CurrentFilter;
 }
 
 <!-- Main Content -->
@@ -43,16 +44,16 @@
 			<span class="font-semibold text-slate-900">Filter by status</span>
 		</div>
 		<div class="flex gap-2 flex-wrap">
-			<a href="/moderator?status=all&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(ViewBag.CurrentFilter == "all" ? "bg-sky-700 text-white border-sky-700" : "bg-white text-slate-700 border-slate-200 hover:border-sky-300 hover:text-sky-700")'>
+			<a href="/moderator?status=all&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(currentFilter == "all" ? "bg-sky-700 text-white border-sky-700" : "bg-white text-slate-700 border-slate-200 hover:border-sky-300 hover:text-sky-700")'>
 				All
 			</a>
-			<a href="/moderator?status=pending&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(ViewBag.CurrentFilter == "pending" ? "bg-amber-600 text-white border-amber-600" : "bg-white text-slate-700 border-slate-200 hover:border-amber-300 hover:text-amber-700")'>
+			<a href="/moderator?status=pending&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(currentFilter == "pending" ? "bg-amber-600 text-white border-amber-600" : "bg-white text-slate-700 border-slate-200 hover:border-amber-300 hover:text-amber-700")'>
 				Pending
 			</a>
-			<a href="/moderator?status=approved&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(ViewBag.CurrentFilter == "approved" ? "bg-emerald-600 text-white border-emerald-600" : "bg-white text-slate-700 border-slate-200 hover:border-emerald-300 hover:text-emerald-700")'>
+			<a href="/moderator?status=approved&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(currentFilter == "approved" ? "bg-emerald-600 text-white border-emerald-600" : "bg-white text-slate-700 border-slate-200 hover:border-emerald-300 hover:text-emerald-700")'>
 				Approved
 			</a>
-			<a href="/moderator?status=rejected&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(ViewBag.CurrentFilter == "rejected" ? "bg-rose-600 text-white border-rose-600" : "bg-white text-slate-700 border-slate-200 hover:border-rose-300 hover:text-rose-700")'>
+			<a href="/moderator?status=rejected&page=1" class='filter-pill px-4 py-2 rounded-full text-sm font-semibold border @(currentFilter == "rejected" ? "bg-rose-600 text-white border-rose-600" : "bg-white text-slate-700 border-slate-200 hover:border-rose-300 hover:text-rose-700")'>
 				Rejected
 			</a>
 		</div>
@@ -67,6 +68,7 @@
 				<tr>
 					<th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Image</th>
 					<th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Title</th>
+					<th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Description</th>
 					<th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Uploader</th>
 					<th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Upload Date</th>
 					<th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Status</th>
@@ -74,7 +76,7 @@
 				</tr>
 			</thead>
 			<tbody id="imagesTable" class="divide-y divide-slate-200">
-				@foreach (Picture picture in Model.Items)
+				@foreach (Picture picture in Model.Pictures.Items)
 				{
 					string? normalizedStatus = picture.Status switch
 					{
@@ -98,27 +100,40 @@
 						_ => "Approved"
 					};
 
+					var canModerate = normalizedStatus == "pending";
+
 					<tr data-status="@normalizedStatus" class="hover:bg-sky-50/40 transition-colors">
 						<td class="px-6 py-4">
 							<img src="@picture.ImageURL" onerror="this.onerror=null;this.src='/images/default-image.jpg';" alt="@picture.Title" class="w-24 h-16 object-cover rounded-lg ring-1 ring-slate-200 cursor-pointer hover:scale-105 transition-transform" onclick="showImageModal('@picture.ImageURL')" />
 						</td>
 						<td class="px-6 py-4 text-sm font-semibold text-slate-900">@picture.Title</td>
+						<td class="px-6 py-4 text-sm text-slate-600 max-w-xs truncate" title="@picture.Description">@(string.IsNullOrWhiteSpace(picture.Description) ? "No Description" : picture.Description)</td>
 						<td class="px-6 py-4 text-sm text-slate-600">@(picture.Author?.MemberName ?? "Unknown")</td>
 						<td class="px-6 py-4 text-sm text-slate-600">@picture.UploadDate.ToString("yyyy-MM-dd HH:mm")</td>
 						<td class="px-6 py-4">
 							<span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full @statusBadgeClass">@statusLabel</span>
 						</td>
-						<td class="action-col px-6 py-4" style='@(normalizedStatus == "pending" ? "" : "display: none;")'>
+						<td class="action-col px-6 py-4">
 							<div class="flex gap-2">
 								<form asp-action="Approve" asp-controller="Moderator" asp-route-id="@picture.PictureID" method="post" class="inline">
-									<button type="submit" class="p-2 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors ring-1 ring-emerald-200" title="Approve" aria-label="Approve">
+									@Html.AntiForgeryToken()
+									<button type="submit"
+											class="p-2 rounded-full bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200 @(canModerate ? "hover:bg-emerald-200 transition-colors" : "opacity-50 cursor-not-allowed")"
+											title="@(canModerate ? "Approve" : "Only pending images can be approved")"
+											aria-label="Approve"
+											disabled="@(!canModerate)">
 										<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 										</svg>
 									</button>
 								</form>
 								<form asp-action="Reject" asp-controller="Moderator" asp-route-id="@picture.PictureID" method="post" class="inline">
-									<button type="submit" class="p-2 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200 transition-colors ring-1 ring-rose-200" title="Reject" aria-label="Reject">
+									@Html.AntiForgeryToken()
+									<button type="submit"
+											class="p-2 rounded-full bg-rose-100 text-rose-700 ring-1 ring-rose-200 @(canModerate ? "hover:bg-rose-200 transition-colors" : "opacity-50 cursor-not-allowed")"
+											title="@(canModerate ? "Reject" : "Only pending images can be rejected")"
+											aria-label="Reject"
+											disabled="@(!canModerate)">
 										<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
 										</svg>
@@ -137,35 +152,35 @@
 </div>
 
 <!-- Pagination -->
-@if (Model.TotalPages > 1)
+@if (Model.Pictures.TotalPages > 1)
 {
 	<div class="mt-6 flex justify-center items-center gap-2 flex-wrap">
-		@if (Model.HasPreviousPage)
+		@if (Model.Pictures.HasPreviousPage)
 		{
-			<a href="/moderator?status=@ViewBag.CurrentFilter&page=1" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">First</a>
-			<a href="/moderator?status=@ViewBag.CurrentFilter&page=@(Model.CurrentPage - 1)" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">Previous</a>
+			<a href="/moderator?status=@currentFilter&page=1" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">First</a>
+			<a href="/moderator?status=@currentFilter&page=@(Model.Pictures.CurrentPage - 1)" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">Previous</a>
 		}
 
-		@for (int i = 1; i <= Model.TotalPages; i++)
+		@for (int i = 1; i <= Model.Pictures.TotalPages; i++)
 		{
-			@if (i == Model.CurrentPage)
+			@if (i == Model.Pictures.CurrentPage)
 			{
 				<span class="px-3 py-2 rounded-lg bg-sky-700 text-white font-semibold">@i</span>
 			}
-			else if (i >= Model.CurrentPage - 2 && i <= Model.CurrentPage + 2)
+			else if (i >= Model.Pictures.CurrentPage - 2 && i <= Model.Pictures.CurrentPage + 2)
 			{
-				<a href="/moderator?status=@ViewBag.CurrentFilter&page=@i" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">@i</a>
+				<a href="/moderator?status=@currentFilter&page=@i" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">@i</a>
 			}
-			else if (i == Model.CurrentPage - 3 || i == Model.CurrentPage + 3)
+			else if (i == Model.Pictures.CurrentPage - 3 || i == Model.Pictures.CurrentPage + 3)
 			{
 				<span class="px-2 py-2">...</span>
 			}
 		}
 
-		@if (Model.HasNextPage)
+		@if (Model.Pictures.HasNextPage)
 		{
-			<a href="/moderator?status=@ViewBag.CurrentFilter&page=@(Model.CurrentPage + 1)" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">Next</a>
-			<a href="/moderator?status=@ViewBag.CurrentFilter&page=@Model.TotalPages" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">Last</a>
+			<a href="/moderator?status=@currentFilter&page=@(Model.Pictures.CurrentPage + 1)" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">Next</a>
+			<a href="/moderator?status=@currentFilter&page=@Model.Pictures.TotalPages" class="px-3 py-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:border-sky-300 hover:text-sky-700">Last</a>
 		}
 	</div>
 }

@@ -30,11 +30,11 @@ namespace SharingPictureWebsite.Controllers
             try
             {
                 _memberService.BanMember(id);
-                TempData["Success"] = "Da ban nguoi dung thanh cong.";
+                TempData["Success"] = "User has been banned successfully.";
             }
             catch (Exception)
             {
-                TempData["Error"] = "Khong tim thay nguoi dung.";
+                TempData["Error"] = "User not found.";
             }
 
             return RedirectToAction("Admin", new { page });
@@ -47,11 +47,11 @@ namespace SharingPictureWebsite.Controllers
             try
             {
                 _memberService.UnbanMember(id);
-                TempData["Success"] = "Da unban nguoi dung thanh cong.";
+                TempData["Success"] = "User has been unbanned successfully.";
             }
             catch (Exception)
             {
-                TempData["Error"] = "Khong tim thay nguoi dung.";
+                TempData["Error"] = "User not found.";
             }
 
             return RedirectToAction("Admin", new { page });

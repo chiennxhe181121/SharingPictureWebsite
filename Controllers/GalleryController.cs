@@ -22,7 +22,7 @@ namespace SharingPictureWebsite.Controllers
     int pageSize = 6)
         {
             var model = _service.GetPublicGallery(search, categoryId, sortBy, page, pageSize);
-            model.PageSize = pageSize; // 🔥 thêm dòng này
+            model.PageSize = pageSize; 
             return View(model);
         }
 
