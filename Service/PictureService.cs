@@ -60,7 +60,17 @@ namespace SharingPictureWebsite.Services
             var comments = _repo.GetComments(pictureId, page, pageSize);
             var total = _repo.GetCommentCount(pictureId);
 
-            return (comments, total);
+            var result = comments.Select(c => new CommentViewModel
+            {
+                UserName = c.UserName,
+                Content = c.Content,
+                CreatedAt = c.CreatedAt,
+                AvatarUrl = string.IsNullOrEmpty(c.AvatarUrl)
+                    ? "/images/user/default-avatar.jpg"
+                    : c.AvatarUrl
+            }).ToList();
+
+            return (result, total);
         }
 
         public UploadViewModel GetUploadData()

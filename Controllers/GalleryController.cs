@@ -88,6 +88,10 @@ namespace SharingPictureWebsite.Controllers
             if (comment == null)
                 return BadRequest("Cannot add comments");
 
+            var avatar = string.IsNullOrEmpty(comment.Member.AvatarURL)
+                ? "~/images/user/default-avatar.jpg"
+                : comment.Member.AvatarURL;
+
             return Json(new
             {
                 success = true,
@@ -96,11 +100,7 @@ namespace SharingPictureWebsite.Controllers
                     userName = comment.Member.FullName,
                     content = comment.Content,
                     createdAt = comment.CreatedAt.ToString("g"),
-                    avatarUrl = string.IsNullOrEmpty(comment.Member.AvatarURL)
-                        ? Url.Content("~/images/user/default-avatar.jpg")
-                        : comment.Member.AvatarURL.StartsWith("http")
-                            ? comment.Member.AvatarURL
-                            : Url.Content("~/" + comment.Member.AvatarURL)
+                    avatarUrl = Url.Content(avatar)
                 }
             });
         }

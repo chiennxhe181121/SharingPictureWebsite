@@ -141,7 +141,7 @@ namespace SharingPictureWebsite.Services
                 Password = AppPasswordHasher.HashPassword(request.Password),
                 RoleID = memberRoleId.Value,
                 Status = Status.Active,
-                AvatarURL = "/images/default-avatar.jpg",
+                AvatarURL = "/images/user/default-avatar.jpg",
                 CreatedAt = DateTime.Now
             };
 

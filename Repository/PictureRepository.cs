@@ -76,54 +76,99 @@ namespace SharingPictureWebsite.Repositories
                 .ToList();
         }
 
+        private string NormalizeAvatar(string? avatarUrl)
+        {
+            if (string.IsNullOrEmpty(avatarUrl))
+                return "/images/user/default-avatar.jpg";
+
+            if (avatarUrl.StartsWith("http"))
+                return avatarUrl;
+
+            if (!avatarUrl.StartsWith("/"))
+                return "/" + avatarUrl;
+
+            return avatarUrl;
+        }
         public ImageDetailViewModel? GetPictureDetail(int pictureId, int currentMemberId)
         {
-            return _context.Pictures
+            var data = _context.Pictures
                 .Where(p => p.PictureID == pictureId)
-                .Select(p => new ImageDetailViewModel
+                .Select(p => new
                 {
-                    PictureID = p.PictureID,
-                    Title = p.Title,
-                    ImageURL = p.ImageURL,
-                    Description = p.Description,
+                    p.PictureID,
+                    p.Title,
+                    p.ImageURL,
+                    p.Description,
                     CategoryName = p.Category != null ? p.Category.CategoryName : "No Category",
                     AuthorName = p.Author.FullName,
                     CreatedAt = p.UploadDate,
                     LikeCount = p.Likes.Count,
-                    IsLiked = p.Likes.Any(l => l.MemberID == currentMemberId), // check tạm member id 2
+                    IsLiked = p.Likes.Any(l => l.MemberID == currentMemberId),
 
                     Comments = p.Comments
-            .OrderByDescending(c => c.CreatedAt)
-            .Take(5)
-            .Select(c => new CommentViewModel
-            {
-                UserName = c.Member.FullName,
-                Content = c.Content,
-                CreatedAt = c.CreatedAt,
-                AvatarUrl = string.IsNullOrEmpty(c.Member.AvatarURL)
-                    ? "/images/user/default-avatar.jpg"
-                    : c.Member.AvatarURL.StartsWith("http") ? c.Member.AvatarURL : "/" + c.Member.AvatarURL
-            }).ToList(),
+                        .OrderByDescending(c => c.CreatedAt)
+                        .Take(5)
+                        .Select(c => new
+                        {
+                            UserName = c.Member.FullName,
+                            Content = c.Content,
+                            CreatedAt = c.CreatedAt,
+                            AvatarURL = c.Member.AvatarURL
+                        }).ToList(),
+
                     CommentTotal = p.Comments.Count
-                }).FirstOrDefault();
+                })
+                .FirstOrDefault();
+
+            if (data == null) return null;
+
+            return new ImageDetailViewModel
+            {
+                PictureID = data.PictureID,
+                Title = data.Title,
+                ImageURL = data.ImageURL,
+                Description = data.Description,
+                CategoryName = data.CategoryName,
+                AuthorName = data.AuthorName,
+                CreatedAt = data.CreatedAt,
+                LikeCount = data.LikeCount,
+                IsLiked = data.IsLiked,
+
+                Comments = data.Comments.Select(c => new CommentViewModel
+                {
+                    UserName = c.UserName,
+                    Content = c.Content,
+                    CreatedAt = c.CreatedAt,
+                    AvatarUrl = NormalizeAvatar(c.AvatarURL) // ✅ chạy ở memory
+                }).ToList(),
+
+                CommentTotal = data.CommentTotal
+            };
         }
 
         public List<CommentViewModel> GetComments(int pictureId, int page = 1, int pageSize = 5)
         {
-            return _context.Comments
+            var data = _context.Comments
                 .Where(c => c.PictureID == pictureId)
                 .OrderByDescending(c => c.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(c => new CommentViewModel
+                .Select(c => new
                 {
                     UserName = c.Member.FullName,
                     Content = c.Content,
                     CreatedAt = c.CreatedAt,
-                    AvatarUrl = string.IsNullOrEmpty(c.Member.AvatarURL)
-                        ? "/images/user/default-avatar.jpg"
-                        : c.Member.AvatarURL.StartsWith("http") ? c.Member.AvatarURL : "/" + c.Member.AvatarURL
-                }).ToList();
+                    AvatarURL = c.Member.AvatarURL
+                })
+                .ToList();
+
+            return data.Select(c => new CommentViewModel
+            {
+                UserName = c.UserName,
+                Content = c.Content,
+                CreatedAt = c.CreatedAt,
+                AvatarUrl = NormalizeAvatar(c.AvatarURL)
+            }).ToList();
         }
 
         public int GetCommentCount(int pictureId)

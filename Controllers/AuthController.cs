@@ -34,13 +34,18 @@ namespace SharingPictureWebsite.Controllers
             }
 
             // Tạo claims
+            var avatar = string.IsNullOrEmpty(member.AvatarURL)
+                ? "/images/user/default-avatar.jpg"
+                : member.AvatarURL;
+
             var claims = new List<Claim>
-{
-    new Claim(ClaimTypes.NameIdentifier, member.MemberID.ToString()),
-    new Claim("MemberName", member.MemberName), // ← thêm dòng này
-    new Claim(ClaimTypes.Role, member.Role.RoleName),
-    new Claim("FullName", member.FullName ?? "")
-};
+            {
+                new Claim(ClaimTypes.NameIdentifier, member.MemberID.ToString()),
+                new Claim("MemberName", member.MemberName),
+                new Claim(ClaimTypes.Role, member.Role.RoleName),
+                new Claim("FullName", member.FullName ?? ""),
+                new Claim("AvatarUrl", avatar)
+            };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
