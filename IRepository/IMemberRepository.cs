@@ -18,6 +18,9 @@ namespace SharingPictureWebsite.Repositories.Interfaces
 
         void Ban(int id);
         void Unban(int id);
+        
+        void UpdateMemberRole(int memberId, int roleId);
+        IEnumerable<Role> GetAllRoles();
 
         int Count();
         void Save();

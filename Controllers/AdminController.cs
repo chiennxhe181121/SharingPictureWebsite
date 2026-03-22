@@ -58,5 +58,34 @@ namespace SharingPictureWebsite.Controllers
 
             return RedirectToAction("Admin", new { page });
         }
+
+        [HttpPost("update-role/{id:int}")]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateRole(int id, int roleId, int page = 1)
+        {
+            try
+            {
+                // Lấy ID của admin hiện tại từ claims
+                var currentAdminId = int.TryParse(
+                    User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "-1",
+                    out var id_result) ? id_result : -1;
+
+                // Admin không được cấp role cho chính mình
+                if (currentAdminId == id)
+                {
+                    TempData["Error"] = "You cannot change your own role.";
+                    return RedirectToAction("Admin", new { page });
+                }
+
+                _memberService.UpdateMemberRole(id, roleId);
+                TempData["Success"] = "User role has been updated successfully.";
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "Failed to update user role.";
+            }
+
+            return RedirectToAction("Admin", new { page });
+        }
     }
 }

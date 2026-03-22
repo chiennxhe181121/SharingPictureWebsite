@@ -103,53 +103,74 @@
 						<td class="px-6 py-4 text-sm text-gray-600">@member.Email</td>
 						<td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title="@member.Bio">@(string.IsNullOrWhiteSpace(member.Bio) ? "-" : member.Bio)</td>
 						<td class="px-6 py-4 text-sm text-gray-600">@member.CreatedAt.ToString("dd/MM/yyyy")</td>
-						<td class="px-6 py-4 text-sm text-gray-600">@(member.Role?.RoleName ?? "-")</td>
-						<td class="px-6 py-4">
-							<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @statusClass">@statusText</span>
-						</td>
-						<td class="px-6 py-4">
-							<div class="flex gap-2">
-								@if (!isBanned)
+					<td class="px-6 py-4">
+						@{
+							var currentUserId = int.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "-1", out var uid) ? uid : -1;
+							var isCurrentUser = currentUserId == member.MemberID;
+						}
+						<form asp-action="UpdateRole" asp-controller="Admin" asp-route-id="@member.MemberID" method="post" class="inline-flex gap-2">
+							@Html.AntiForgeryToken()
+							<input type="hidden" name="page" value="@Model.Members.CurrentPage" />
+							<select name="roleId" class="px-3 py-1 text-xs rounded border border-gray-300 @(isCurrentUser ? "bg-gray-100 cursor-not-allowed" : "bg-white cursor-pointer")" @(isCurrentUser ? "disabled" : "")>
+								@foreach (var role in Model.Roles)
 								{
-									<form asp-action="Ban" asp-controller="Admin" asp-route-id="@member.MemberID" method="post" class="inline">
-										<input type="hidden" name="page" value="@Model.Members.CurrentPage" />
-										<button type="submit" class="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors" title="Ban" aria-label="Ban user">
-											<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636"></path>
-											</svg>
-										</button>
-									</form>
+									<option value="@role.RoleID" selected="@(member.RoleID == role.RoleID)">@role.RoleName</option>
 								}
-								else
-								{
-									<button type="button" disabled class="p-2 rounded-full bg-gray-100 text-gray-400 cursor-not-allowed" title="User already banned" aria-label="User already banned">
+							</select>
+							<button type="submit" 
+									class="p-1 px-2 text-xs rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors @(isCurrentUser ? "opacity-50 cursor-not-allowed" : "")"
+									title="@(isCurrentUser ? "You cannot change your own role" : "Update role")"
+									@(isCurrentUser ? "disabled" : "")>
+								Update
+							</button>
+						</form>
+					</td>
+					<td class="px-6 py-4">
+						<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @statusClass">@statusText</span>
+					</td>
+					<td class="px-6 py-4">
+						<div class="flex gap-2">
+							@if (!isBanned)
+							{
+								<form asp-action="Ban" asp-controller="Admin" asp-route-id="@member.MemberID" method="post" class="inline">
+									<input type="hidden" name="page" value="@Model.Members.CurrentPage" />
+									<button type="submit" class="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors" title="Ban" aria-label="Ban user">
 										<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636"></path>
 										</svg>
 									</button>
-								}
+								</form>
+							}
+							else
+							{
+								<button type="button" disabled class="p-2 rounded-full bg-gray-100 text-gray-400 cursor-not-allowed" title="User already banned" aria-label="User already banned">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636"></path>
+									</svg>
+								</button>
+							}
 
-								@if (isBanned)
-								{
-									<form asp-action="Unban" asp-controller="Admin" asp-route-id="@member.MemberID" method="post" class="inline">
-										<input type="hidden" name="page" value="@Model.Members.CurrentPage" />
-										<button type="submit" class="p-2 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors" title="Unban" aria-label="Unban user">
-											<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-											</svg>
-										</button>
-									</form>
-								}
-								else
-								{
-									<button type="button" disabled class="p-2 rounded-full bg-gray-100 text-gray-400 cursor-not-allowed" title="User is active" aria-label="User is active">
+							@if (isBanned)
+							{
+								<form asp-action="Unban" asp-controller="Admin" asp-route-id="@member.MemberID" method="post" class="inline">
+									<input type="hidden" name="page" value="@Model.Members.CurrentPage" />
+									<button type="submit" class="p-2 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors" title="Unban" aria-label="Unban user">
 										<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 										</svg>
 									</button>
-								}
-							</div>
-						</td>
+								</form>
+							}
+							else
+							{
+								<button type="button" disabled class="p-2 rounded-full bg-gray-100 text-gray-400 cursor-not-allowed" title="User is active" aria-label="User is active">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+									</svg>
+								</button>
+							}
+						</div>
+					</td>
 					</tr>
 				}
 			</tbody>
