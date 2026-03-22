@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SharingPictureWebsite.Services;
 using SharingPictureWebsite.Services.Interfaces;
+using System.Security.Claims;
 
 namespace SharingPictureWebsite.Controllers
 {
@@ -8,6 +9,20 @@ namespace SharingPictureWebsite.Controllers
     public class PictureController : Controller
     {
         private readonly IPictureService _service;
+
+        // --- Helper lấy MemberID từ claim ---
+        private int GetCurrentMemberId()
+        {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var memberIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(memberIdClaim) && int.TryParse(memberIdClaim, out int memberId))
+                {
+                    return memberId;
+                }
+            }
+            return 0; // 0 hoặc throw nếu muốn bắt lỗi khi chưa đăng nhập
+        }
 
         public PictureController(IPictureService service)
         {
@@ -47,7 +62,7 @@ namespace SharingPictureWebsite.Controllers
                     return RedirectToAction("Upload");
                 }
 
-                int memberId = 2;
+                int memberId = GetCurrentMemberId();
 
                 await _service.UploadImageAsync(file, title, description, categoryId, memberId, albumId);
 

@@ -1,4 +1,4 @@
-using System.Net.Mail;
+﻿using System.Net.Mail;
 using System.Text.RegularExpressions;
 using SharingPictureWebsite.Models;
 using SharingPictureWebsite.Repositories.Interfaces;
@@ -18,6 +18,15 @@ namespace SharingPictureWebsite.Services
             _memberRepository = memberRepository;
             _pictureRepository = pictureRepository;
         }
+        public Member? Login(string emailOrUsername, string password)
+        {
+            // Trường hợp sau này có bcrypt, replace password check ở đây
+            return _memberRepository.ValidateLogin(emailOrUsername, password);
+        }
+
+        public bool IsAdmin(Member member) => member.Role.RoleName == "Admin";
+        public bool IsModerator(Member member) => member.Role.RoleName == "Moderator";
+        public bool IsMember(Member member) => member.Role.RoleName == "Member";
 
         public IEnumerable<Member> GetAllMembers()
         {

@@ -22,5 +22,32 @@ namespace SharingPictureWebsite.Service.Security
 
             return $"PBKDF2${Iterations}${Convert.ToBase64String(salt)}${Convert.ToBase64String(key)}";
         }
+
+        public static bool VerifyPassword(string password, string hashedPassword)
+        {
+            try
+            {
+                var parts = hashedPassword.Split('$');
+                if (parts.Length != 4 || parts[0] != "PBKDF2")
+                    return false;
+
+                var iterations = int.Parse(parts[1]);
+                var salt = Convert.FromBase64String(parts[2]);
+                var key = Convert.FromBase64String(parts[3]);
+
+                var keyToCheck = Rfc2898DeriveBytes.Pbkdf2(
+                    password,
+                    salt,
+                    iterations,
+                    HashAlgorithmName.SHA256,
+                    key.Length);
+
+                return CryptographicOperations.FixedTimeEquals(key, keyToCheck);
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

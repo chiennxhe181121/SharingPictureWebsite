@@ -7,6 +7,8 @@ namespace SharingPictureWebsite.Repositories.Interfaces
         IEnumerable<Member> GetAll();
         Member? GetById(int id);
         Member? GetByEmail(string email);
+        Member? GetByUsername(string username);
+        Member? ValidateLogin(string emailOrUsername, string password);
         Member? GetByMemberName(string memberName);
         int? GetRoleIdByName(string roleName);
 
