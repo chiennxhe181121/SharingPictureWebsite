@@ -1,4 +1,6 @@
-﻿<!-- Main Content -->
+﻿@model SharingPictureWebsite.ViewModels.RegisterRequestViewModel
+
+<!-- Main Content -->
 <main class="min-h-screen flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-md">
         <!-- Register Card -->
@@ -13,11 +15,23 @@
                 <p class="text-gray-600">Join our community and start sharing</p>
             </div>
 
-            <form id="registerForm" method="post" action="/Account/Register">
-                <!-- Username -->
+            <form id="registerForm" method="post" asp-action="Register" asp-controller="Auth">
+                @Html.AntiForgeryToken()
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <p>@error.ErrorMessage</p>
+                        }
+                    </div>
+                }
+
+                <!-- Member Name -->
                 <div class="mb-4">
-                    <label for="username" class="block text-sm font-semibold text-gray-900 mb-2">
-                        Username
+                    <label for="memberName" class="block text-sm font-semibold text-gray-900 mb-2">
+                        Member Name
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -26,11 +40,33 @@
                             </svg>
                         </div>
                         <input type="text"
-                               id="username"
-                               name="username"
+                               id="memberName"
+                               name="memberName"
                                required
+                               value="@Model.MemberName"
                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               placeholder="Choose a username" />
+                               placeholder="Choose a member name" />
+                    </div>
+                </div>
+
+                <!-- Full Name -->
+                <div class="mb-4">
+                    <label for="fullName" class="block text-sm font-semibold text-gray-900 mb-2">
+                        Full Name
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A11.955 11.955 0 0112 15c2.5 0 4.823.765 6.879 2.072M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </div>
+                        <input type="text"
+                               id="fullName"
+                               name="fullName"
+                               required
+                               value="@Model.FullName"
+                               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Enter your full name" />
                     </div>
                 </div>
 
@@ -49,6 +85,7 @@
                                id="email"
                                name="email"
                                required
+                               value="@Model.Email"
                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                placeholder="Enter your email" />
                     </div>
@@ -245,14 +282,15 @@
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
         registerForm.addEventListener('submit', (e) => {
-            const username = document.getElementById('username').value.trim();
+            const memberName = document.getElementById('memberName').value.trim();
+            const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const agreeTerms = document.getElementById('agreeTerms').checked;
 
             // Check if all fields are filled
-            if (!username || !email || !password || !confirmPassword) {
+            if (!memberName || !fullName || !email || !password || !confirmPassword) {
                 e.preventDefault();
                 alert('Please fill in all fields');
                 return;
