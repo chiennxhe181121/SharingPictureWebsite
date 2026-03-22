@@ -9,9 +9,25 @@
                      ? User.FindFirst("MemberName")?.Value
                      : "Guest";
 
-    var avatarUrl = User.Identity?.IsAuthenticated == true
-                    ? User.FindFirst("AvatarUrl")?.Value ?? "/images/user/default-avatar.jpg"
-                    : "/images/user/default-avatar.jpg";
+    var defaultAvatarUrl = "/images/user/default-avatar.jpg";
+    var avatarClaim = User.Identity?.IsAuthenticated == true
+                      ? User.FindFirst("AvatarUrl")?.Value
+                      : null;
+
+    var avatarUrl = string.IsNullOrWhiteSpace(avatarClaim)
+                    ? defaultAvatarUrl
+                    : avatarClaim;
+
+    if (avatarUrl.Equals("/images/default-avatar.png", StringComparison.OrdinalIgnoreCase))
+    {
+        avatarUrl = defaultAvatarUrl;
+    }
+    else if (!avatarUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+             && !avatarUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+             && !avatarUrl.StartsWith("/", StringComparison.Ordinal))
+    {
+        avatarUrl = "/" + avatarUrl.TrimStart('/');
+    }
 
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
 }
@@ -233,6 +249,7 @@
                                     class="flex items-center gap-3 p-1 pr-4 rounded-full border border-gray-200 bg-white/80 hover:bg-white hover:shadow-md transition-all group">
                                 <div class="relative">
                                     <img src="@avatarUrl" alt="Avatar"
+                                         onerror="this.onerror=null;this.src='@defaultAvatarUrl';"
                                          class="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm group-hover:border-blue-200 transition-colors">
                                     <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>
                                 </div>

@@ -87,15 +87,27 @@
 			<tbody id="membersTable" class="divide-y divide-gray-200">
 				@foreach (var member in Model.Members.Items)
 				{
+					var currentUserId = int.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "-1", out var uid) ? uid : -1;
+					var isCurrentUser = currentUserId == member.MemberID;
 					var isBanned = member.Status == Status.Banned;
 					var statusClass = isBanned ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800";
 					var statusText = isBanned ? "Banned" : "Active";
+					var defaultAvatarUrl = Url.Content("~/images/user/default-avatar.jpg");
+					var avatarUrl = string.IsNullOrWhiteSpace(member.AvatarURL)
+						? defaultAvatarUrl
+						: (member.AvatarURL.Equals("/images/default-avatar.png", StringComparison.OrdinalIgnoreCase)
+							? defaultAvatarUrl
+						: (member.AvatarURL.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || member.AvatarURL.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+							? member.AvatarURL
+							: Url.Content(member.AvatarURL.StartsWith("~") || member.AvatarURL.StartsWith("/")
+								? member.AvatarURL
+								: $"~/{member.AvatarURL.TrimStart('/')}")));
 
 					<tr class="hover:bg-gray-50">
 						<td class="px-6 py-4 text-sm text-gray-600">
-							<img src="@(string.IsNullOrWhiteSpace(member.AvatarURL) ? Url.Content("~/images/default-avatar.jpg") : member.AvatarURL)"
+							<img src="@avatarUrl"
 								 alt="@member.MemberName avatar"
-								 onerror="this.onerror=null;this.src='@Url.Content("~/images/default-avatar.jpg")';"
+								 onerror="this.onerror=null;this.src='@defaultAvatarUrl';"
 								 class="w-10 h-10 rounded-full object-cover border border-gray-200" />
 						</td>
 						<td class="px-6 py-4 text-sm font-medium text-gray-900">@member.MemberName</td>
@@ -104,10 +116,6 @@
 						<td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title="@member.Bio">@(string.IsNullOrWhiteSpace(member.Bio) ? "-" : member.Bio)</td>
 						<td class="px-6 py-4 text-sm text-gray-600">@member.CreatedAt.ToString("dd/MM/yyyy")</td>
 					<td class="px-6 py-4">
-						@{
-							var currentUserId = int.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "-1", out var uid) ? uid : -1;
-							var isCurrentUser = currentUserId == member.MemberID;
-						}
 						<form asp-action="UpdateRole" asp-controller="Admin" asp-route-id="@member.MemberID" method="post" class="inline-flex gap-2">
 							@Html.AntiForgeryToken()
 							<input type="hidden" name="page" value="@Model.Members.CurrentPage" />
@@ -132,14 +140,25 @@
 						<div class="flex gap-2">
 							@if (!isBanned)
 							{
-								<form asp-action="Ban" asp-controller="Admin" asp-route-id="@member.MemberID" method="post" class="inline">
-									<input type="hidden" name="page" value="@Model.Members.CurrentPage" />
-									<button type="submit" class="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors" title="Ban" aria-label="Ban user">
+								@if (isCurrentUser)
+								{
+									<button type="button" disabled class="p-2 rounded-full bg-gray-100 text-gray-400 cursor-not-allowed" title="You cannot ban your own account" aria-label="You cannot ban your own account">
 										<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636"></path>
 										</svg>
 									</button>
-								</form>
+								}
+								else
+								{
+									<form asp-action="Ban" asp-controller="Admin" asp-route-id="@member.MemberID" method="post" class="inline">
+										<input type="hidden" name="page" value="@Model.Members.CurrentPage" />
+										<button type="submit" class="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors" title="Ban" aria-label="Ban user">
+											<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636"></path>
+											</svg>
+										</button>
+									</form>
+								}
 							}
 							else
 							{
